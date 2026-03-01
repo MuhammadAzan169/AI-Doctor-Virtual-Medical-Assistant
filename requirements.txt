@@ -14,3 +14,4 @@ silero-vad
 gtts
 pygame
 paddlepaddle
+python-dotenv

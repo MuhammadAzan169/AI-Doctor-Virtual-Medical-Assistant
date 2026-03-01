@@ -1,28 +1,18 @@
-from paddleocr import PaddleOCR
-import json
-import os
+from paddleocr import PaddleOCR  # Import the PaddleOCR class
 
+# Initialize the OCR model with optional document-related features disabled
 ocr = PaddleOCR(
-    use_angle_cls=False,
-    lang='en'
+    use_doc_orientation_classify=False,  # Disable document orientation classification
+    use_doc_unwarping=False,  # Disable unwarping of curved documents
+    use_textline_orientation=False  # Disable detection of text line orientation
 )
 
+# Function to perform OCR on the given image path
 def perform_ocr(path_to_test):
-    result = ocr.ocr(path_to_test, cls=True)
-    output_dir = "output"
-    os.makedirs(output_dir, exist_ok=True)
+    result = ocr.predict(
+        input=path_to_test  # Run OCR prediction on the input image
+    )
 
-    # Save JSON
-    json_result = []
-    for line in result:
-        for word_info in line:
-            json_result.append({
-                "text": word_info[1][0],
-                "confidence": float(word_info[1][1]),
-                "box": word_info[0]
-            })
-
-    with open(os.path.join(output_dir, "large_res.json"), "w") as f:
-        json.dump(json_result, f, indent=2)
-
-    print(f"OCR complete. JSON saved to {output_dir}/large_res.json")
+    for res in result:
+        res.save_to_img("output")  # Save OCR-annotated image to the "output" folder
+        res.save_to_json("output")  # Save OCR result in JSON format to the "output" folder
