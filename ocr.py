@@ -1,3 +1,20 @@
+import os
+os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"  # Skip slow connectivity check on startup
+
+# Monkey-patch: paddlex imports langchain.docstore which was removed in langchain>=1.0.
+# Redirect it to langchain_core.documents so paddleocr can load without errors.
+import importlib, types
+_langchain_docstore = types.ModuleType("langchain.docstore")
+_langchain_docstore_document = types.ModuleType("langchain.docstore.document")
+try:
+    from langchain_core.documents import Document
+    _langchain_docstore_document.Document = Document
+except ImportError:
+    pass
+import sys
+sys.modules.setdefault("langchain.docstore", _langchain_docstore)
+sys.modules.setdefault("langchain.docstore.document", _langchain_docstore_document)
+
 from paddleocr import PaddleOCR  # Import the PaddleOCR class
 
 # Initialize the OCR model with optional document-related features disabled
