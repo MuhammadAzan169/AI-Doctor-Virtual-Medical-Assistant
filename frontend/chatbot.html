@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Doctor Consultation — Describe your symptoms, upload medical files, and receive an AI-generated prescription.">
+    <title>AI Doctor — Consultation</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="chatbot-page">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         ANIMATED BACKGROUND (subtle for chat page)
+    ═══════════════════════════════════════════════════════════════ -->
+    <div class="bg-animation bg-chat">
+        <div class="bg-gradient-orb bg-orb-1"></div>
+        <div class="bg-gradient-orb bg-orb-2"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         CHAT HEADER / TOPBAR
+    ═══════════════════════════════════════════════════════════════ -->
+    <header class="chat-header">
+        <div class="chat-header-inner">
+            <a href="index.html" class="chat-back-btn" aria-label="Back to home">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M13 15l-5-5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+            <div class="chat-header-info">
+                <div class="chat-header-avatar">
+                    <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+                        <rect width="32" height="32" rx="8" fill="url(#chatLogoGrad)"/>
+                        <path d="M16 7v18M7 16h18" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+                        <defs>
+                            <linearGradient id="chatLogoGrad" x1="0" y1="0" x2="32" y2="32">
+                                <stop stop-color="#0ea5e9"/>
+                                <stop offset="1" stop-color="#06b6d4"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="chat-header-title">AI Doctor</h1>
+                    <div class="chat-header-status">
+                        <span class="status-dot"></span>
+                        <span id="headerStatus">Ready to assist</span>
+                    </div>
+                </div>
+            </div>
+            <button class="chat-new-btn" id="newChatBtn" aria-label="New consultation" title="New consultation">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         MAIN CHAT AREA
+    ═══════════════════════════════════════════════════════════════ -->
+    <main class="chat-main">
+
+        <!-- Patient Info Form (Initial Step) -->
+        <div class="chat-overlay" id="patientFormOverlay">
+            <div class="patient-form-card" id="patientFormCard">
+                <div class="form-header">
+                    <div class="form-icon">
+                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                            <rect width="40" height="40" rx="12" fill="url(#formGrad)"/>
+                            <path d="M20 10v20M10 20h20" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+                            <defs>
+                                <linearGradient id="formGrad" x1="0" y1="0" x2="40" y2="40">
+                                    <stop stop-color="#0ea5e9"/>
+                                    <stop offset="1" stop-color="#06b6d4"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <h2>Start Your Consultation</h2>
+                    <p>Please provide your information to begin the AI medical consultation.</p>
+                </div>
+                <form id="patientForm" autocomplete="off">
+                    <div class="form-group">
+                        <label for="patientName">Full Name</label>
+                        <input type="text" id="patientName" name="patientName" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patientAge">Age</label>
+                            <input type="number" id="patientAge" name="patientAge" placeholder="Age" min="1" max="120" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="patientGender">Gender</label>
+                            <select id="patientGender" name="patientGender" required>
+                                <option value="" disabled selected>Select</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- File Uploads (Optional) -->
+                    <div class="form-divider">
+                        <span>Optional Medical Files</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="xrayUpload">X-Ray Image <span class="optional-badge">Optional</span></label>
+                        <div class="file-upload-zone" id="xrayUploadZone">
+                            <input type="file" id="xrayUpload" name="xrayUpload" accept=".jpg,.jpeg,.png" hidden>
+                            <div class="file-upload-content">
+                                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                                    <rect x="4" y="6" width="24" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/>
+                                    <circle cx="12" cy="14" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M4 22l6-6 4 4 6-6 8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <p>Click or drag to upload X-ray</p>
+                                <span>JPG, JPEG, or PNG</span>
+                            </div>
+                            <div class="file-upload-preview" id="xrayPreview" hidden>
+                                <img id="xrayPreviewImg" alt="X-ray preview">
+                                <button type="button" class="file-remove-btn" data-target="xray" aria-label="Remove file">&times;</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reportUpload">Test Report <span class="optional-badge">Optional</span></label>
+                        <div class="file-upload-zone" id="reportUploadZone">
+                            <input type="file" id="reportUpload" name="reportUpload" accept=".jpg,.jpeg,.png,.json" hidden>
+                            <div class="file-upload-content">
+                                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                                    <path d="M9 4h10l6 6v18H9V4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                                    <path d="M19 4v6h6M13 16h6M13 20h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                                <p>Click or drag to upload report</p>
+                                <span>JPG, JPEG, PNG, or JSON</span>
+                            </div>
+                            <div class="file-upload-preview file-upload-preview--doc" id="reportPreview" hidden>
+                                <div class="file-preview-doc">
+                                    <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+                                        <path d="M9 4h10l6 6v18H9V4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                                        <path d="M19 4v6h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                    <span id="reportFileName">report.png</span>
+                                </div>
+                                <button type="button" class="file-remove-btn" data-target="report" aria-label="Remove file">&times;</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg btn-full">
+                        <span>Begin Consultation</span>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Chat Messages Container -->
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages injected via JS -->
+        </div>
+
+        <!-- Typing Indicator -->
+        <div class="typing-indicator" id="typingIndicator" hidden>
+            <div class="typing-avatar">🩺</div>
+            <div class="typing-dots">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </main>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         CHAT INPUT BAR
+    ═══════════════════════════════════════════════════════════════ -->
+    <footer class="chat-input-bar" id="chatInputBar">
+        <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+                <textarea
+                    id="chatInput"
+                    class="chat-input"
+                    placeholder="Describe your symptoms or answer the question..."
+                    rows="1"
+                    aria-label="Type your message"
+                    disabled
+                ></textarea>
+                <div class="chat-input-actions">
+                    <button class="chat-send-btn" id="sendBtn" disabled aria-label="Send message">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M3.5 10L17 3l-3 14-4.5-5.5L3.5 10z" fill="currentColor"/>
+                            <path d="M9.5 11.5L17 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <p class="chat-disclaimer">AI Doctor is for informational purposes only. Always consult a qualified healthcare provider.</p>
+        </div>
+    </footer>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         PRESCRIPTION MODAL
+    ═══════════════════════════════════════════════════════════════ -->
+    <div class="modal-overlay" id="prescriptionModal" hidden>
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>📋 Your Prescription</h2>
+                <button class="modal-close-btn" id="modalCloseBtn" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body" id="prescriptionContent">
+                <!-- Prescription content rendered here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="modalCloseBtn2">Close</button>
+                <button class="btn btn-primary" id="downloadPdfBtn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 2v8M4 8l4 4 4-4M2 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Download PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
