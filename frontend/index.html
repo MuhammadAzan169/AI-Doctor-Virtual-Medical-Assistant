@@ -1,451 +1,457 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AI Doctor - Your Virtual Medical Assistant powered by advanced AI for symptom analysis, X-ray fracture detection, and intelligent prescription generation.">
-    <title>AI Doctor — Virtual Medical Assistant</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body class="landing-page">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="AI-powered medical assistant providing intelligent health consultations, medical image analysis, and prescription generation." />
+    <title>Luminous AI — Virtual Medical Assistant</title>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         ANIMATED BACKGROUND
-    ═══════════════════════════════════════════════════════════════ -->
-    <div class="bg-animation">
-        <div class="bg-gradient-orb bg-orb-1"></div>
-        <div class="bg-gradient-orb bg-orb-2"></div>
-        <div class="bg-gradient-orb bg-orb-3"></div>
-        <div class="bg-grid"></div>
-        <div class="floating-particles" id="particles"></div>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     ANIMATED BACKGROUND
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="bg-animation" aria-hidden="true">
+    <div class="bg-orb bg-orb--1"></div>
+    <div class="bg-orb bg-orb--2"></div>
+    <div class="bg-orb bg-orb--3"></div>
+    <div class="bg-grid"></div>
+    <div class="bg-particles" id="particles"></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     NAVBAR
+     ═══════════════════════════════════════════════════════════════ -->
+<nav class="navbar glass-strong" id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container navbar__inner">
+
+        <!-- Logo -->
+        <a href="index.html" class="navbar__logo" aria-label="Luminous AI Home">
+            <span class="navbar__logo-icon">
+                <!-- Stethoscope icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.8 2.62a2 2 0 0 1 1.2-.42h0a2 2 0 0 1 2 2v4.5a6 6 0 0 1-12 0V4.2a2 2 0 0 1 2-2h0a2 2 0 0 1 1.2.42"/><path d="M2 8v1a6 6 0 0 0 12 0V8"/><circle cx="20" cy="10" r="2"/><path d="M20 12v8a2 2 0 0 1-2 2h-1.93a2 2 0 0 1-1.66-.9l-.82-1.2a2 2 0 0 0-1.66-.9H8"/></svg>
+            </span>
+            <span class="navbar__logo-text">Luminous AI</span>
+        </a>
+
+        <!-- Desktop Links -->
+        <div class="navbar__links">
+            <a href="#features" class="navbar__link">Features</a>
+            <a href="#how-it-works" class="navbar__link">How It Works</a>
+            <a href="#capabilities" class="navbar__link">Capabilities</a>
+        </div>
+
+        <!-- Actions -->
+        <div class="navbar__actions">
+            <!-- Theme Toggle -->
+            <button class="navbar__theme-btn" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+            </button>
+
+            <!-- CTA -->
+            <a href="chatbot.html" class="navbar__cta">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                Start Consultation
+            </a>
+
+            <!-- Mobile toggle -->
+            <button class="navbar__mobile-btn" id="mobile-toggle" aria-label="Open menu" aria-expanded="false">
+                <svg class="icon-menu" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                <svg class="icon-close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+        </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         NAVIGATION
-    ═══════════════════════════════════════════════════════════════ -->
-    <nav class="navbar" id="navbar">
-        <div class="nav-container">
-            <a href="#" class="nav-logo" aria-label="AI Doctor Home">
-                <div class="logo-icon">
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                        <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
-                        <path d="M16 7v18M7 16h18" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-                        <defs>
-                            <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
-                                <stop stop-color="#0ea5e9"/>
-                                <stop offset="1" stop-color="#06b6d4"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                </div>
-                <span class="logo-text">AI <span class="logo-accent">Doctor</span></span>
+    <!-- Mobile overlay -->
+    <div class="navbar__mobile-overlay" id="mobile-overlay" aria-hidden="true">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#capabilities">Capabilities</a>
+        <a href="chatbot.html" class="navbar__mobile-cta">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+            Start Consultation
+        </a>
+    </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     HERO SECTION
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+    <div class="container hero__inner">
+
+        <!-- Badge -->
+        <div class="hero__badge">
+            <span class="hero__badge-dot"></span>
+            AI-Powered Healthcare Platform
+        </div>
+
+        <!-- Title -->
+        <h1 class="hero__title">
+            Your Intelligent<br/>
+            <span class="text-gradient">Medical Assistant</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="hero__subtitle">
+            Experience the future of healthcare with our AI-powered medical assistant.
+            Get instant consultations, medical image analysis, and personalized health insights —
+            all powered by advanced artificial intelligence.
+        </p>
+
+        <!-- Actions -->
+        <div class="hero__actions">
+            <a href="chatbot.html" class="btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                Start Consultation
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </a>
-            <div class="nav-links" id="navLinks">
-                <a href="#features" class="nav-link">Features</a>
-                <a href="#how-it-works" class="nav-link">How It Works</a>
-                <a href="#capabilities" class="nav-link">Capabilities</a>
+            <a href="#features" class="btn-ghost">
+                Learn More
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </a>
+        </div>
+
+        <!-- Stats -->
+        <div class="hero__stats glass">
+            <div class="stat">
+                <span class="stat__value text-gradient">AI</span>
+                <span class="stat__label">Powered</span>
             </div>
-            <div class="nav-actions">
-                <a href="chatbot.html" class="btn btn-primary btn-nav">
-                    <span>Start Consultation</span>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </a>
-                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
-                    <span></span><span></span><span></span>
-                </button>
+            <div class="stat-divider"></div>
+            <div class="stat">
+                <span class="stat__value text-gradient">24/7</span>
+                <span class="stat__label">Available</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+                <span class="stat__value--emoji">🔒</span>
+                <span class="stat__label">Private & Secure</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+                <span class="stat__value text-gradient">&lt;30s</span>
+                <span class="stat__label">Response Time</span>
             </div>
         </div>
-    </nav>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         HERO SECTION
-    ═══════════════════════════════════════════════════════════════ -->
-    <main>
-        <section class="hero" id="hero">
-            <div class="hero-container">
-                <div class="hero-badge animate-fade-up">
-                    <span class="badge-dot"></span>
-                    <span>AI-Powered Medical Diagnostics</span>
+        <!-- Chat Mockup -->
+        <div class="hero__mockup-wrap">
+            <div class="mockup glass">
+                <div class="mockup__header">
+                    <div class="mockup__dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <span class="mockup__title">AI Medical Consultation</span>
                 </div>
-
-                <h1 class="hero-title animate-fade-up delay-1">
-                    Your Intelligent<br>
-                    <span class="title-gradient">Virtual Doctor</span>
-                </h1>
-
-                <p class="hero-subtitle animate-fade-up delay-2">
-                    Advanced AI medical assistant that analyzes your symptoms, detects fractures 
-                    from X-rays, processes medical reports, and generates professional prescriptions 
-                    — all through a natural conversational interface.
-                </p>
-
-                <div class="hero-actions animate-fade-up delay-3">
-                    <a href="chatbot.html" class="btn btn-primary btn-lg">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M17 10c0 3.866-3.134 7-7 7a6.97 6.97 0 01-3.5-.938L3 17l.938-3.5A6.97 6.97 0 013 10c0-3.866 3.134-7 7-7s7 3.134 7 7z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M7.5 10h.01M10 10h.01M12.5 10h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        <span>Start Consultation</span>
-                    </a>
-                    <a href="#how-it-works" class="btn btn-ghost btn-lg">
-                        <span>See How It Works</span>
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </a>
-                </div>
-
-                <!-- Hero Stats -->
-                <div class="hero-stats animate-fade-up delay-4">
-                    <div class="stat-item">
-                        <span class="stat-number" data-count="3">0</span>
-                        <span class="stat-label">AI Models</span>
+                <div class="mockup__body">
+                    <!-- User msg -->
+                    <div class="mock-msg mock-msg--user">
+                        <div class="mock-msg__avatar">👤</div>
+                        <div class="mock-msg__bubble">I've been having persistent headaches for the past week, usually in the morning.</div>
                     </div>
-                    <div class="stat-divider"></div>
-                    <div class="stat-item">
-                        <span class="stat-number" data-count="7">0</span><span class="stat-plus">+</span>
-                        <span class="stat-label">Follow-up Questions</span>
+                    <!-- AI msg -->
+                    <div class="mock-msg mock-msg--ai">
+                        <div class="mock-msg__avatar">🤖</div>
+                        <div class="mock-msg__bubble">
+                            I understand your concern. Morning headaches can have several causes.
+                            Let me ask a few questions to better understand your situation.
+                            <strong>How would you rate the pain on a scale of 1-10?</strong>
+                        </div>
                     </div>
-                    <div class="stat-divider"></div>
-                    <div class="stat-item">
-                        <span class="stat-icon">🩻</span>
-                        <span class="stat-label">X-Ray Analysis</span>
+                    <!-- User msg 2 -->
+                    <div class="mock-msg mock-msg--user">
+                        <div class="mock-msg__avatar">👤</div>
+                        <div class="mock-msg__bubble">About 6-7, and it's usually on the right side.</div>
                     </div>
-                    <div class="stat-divider"></div>
-                    <div class="stat-item">
-                        <span class="stat-icon">📋</span>
-                        <span class="stat-label">PDF Prescriptions</span>
-                    </div>
-                </div>
-
-                <!-- Hero Visual -->
-                <div class="hero-visual animate-fade-up delay-5">
-                    <div class="hero-mockup">
-                        <div class="mockup-header">
-                            <div class="mockup-dots">
+                    <!-- Typing -->
+                    <div class="mock-msg mock-msg--ai">
+                        <div class="mock-msg__avatar">🤖</div>
+                        <div class="mock-msg__bubble">
+                            <div class="mock-typing">
                                 <span></span><span></span><span></span>
                             </div>
-                            <span class="mockup-title">AI Doctor — Consultation</span>
-                        </div>
-                        <div class="mockup-body">
-                            <div class="mock-msg mock-ai">
-                                <div class="mock-avatar">🩺</div>
-                                <div class="mock-bubble">
-                                    <p>Hello! I'm your AI Doctor. I'll help analyze your symptoms and provide a professional medical assessment. Could you describe what you're experiencing?</p>
-                                </div>
-                            </div>
-                            <div class="mock-msg mock-user">
-                                <div class="mock-bubble">
-                                    <p>I've been having persistent headaches and mild dizziness for the past week...</p>
-                                </div>
-                            </div>
-                            <div class="mock-msg mock-ai">
-                                <div class="mock-avatar">🩺</div>
-                                <div class="mock-bubble">
-                                    <p>I understand. Let me ask you some follow-up questions to better assess your condition. On a scale of 1-10, how severe are the headaches?</p>
-                                    <div class="mock-typing">
-                                        <span></span><span></span><span></span>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             FEATURES SECTION
-        ═══════════════════════════════════════════════════════════════ -->
-        <section class="features" id="features">
-            <div class="section-container">
-                <div class="section-header">
-                    <span class="section-badge">Core Capabilities</span>
-                    <h2 class="section-title">Powered by Advanced <span class="title-gradient">AI Technology</span></h2>
-                    <p class="section-subtitle">Our system combines multiple AI models and medical knowledge to provide comprehensive virtual consultations.</p>
-                </div>
-
-                <div class="features-grid">
-                    <!-- Feature 1: Symptom Analysis -->
-                    <article class="feature-card" data-animate>
-                        <div class="feature-icon feature-icon-blue">
-                            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                                <path d="M14 3.5C8.201 3.5 3.5 8.201 3.5 14S8.201 24.5 14 24.5 24.5 19.799 24.5 14 19.799 3.5 14 3.5z" stroke="currentColor" stroke-width="2"/>
-                                <path d="M14 9.5v5l3.5 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
-                        <h3 class="feature-title">Symptom Analysis</h3>
-                        <p class="feature-desc">Describe your symptoms via text or voice. Our AI processes natural language to understand your medical concerns with clinical precision.</p>
-                        <div class="feature-tags">
-                            <span class="tag">Text Input</span>
-                            <span class="tag">Voice Input</span>
-                            <span class="tag">NLP</span>
-                        </div>
-                    </article>
-
-                    <!-- Feature 2: X-Ray Fracture Detection -->
-                    <article class="feature-card" data-animate>
-                        <div class="feature-icon feature-icon-teal">
-                            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                                <rect x="3.5" y="5.5" width="21" height="17" rx="2" stroke="currentColor" stroke-width="2"/>
-                                <path d="M10.5 14l2.5 2.5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
-                        <h3 class="feature-title">X-Ray Fracture Detection</h3>
-                        <p class="feature-desc">Upload X-ray images for automated fracture detection using ResNet50 deep learning models trained on elbow, hand, and shoulder bones.</p>
-                        <div class="feature-tags">
-                            <span class="tag">ResNet50</span>
-                            <span class="tag">CNN</span>
-                            <span class="tag">3 Body Parts</span>
-                        </div>
-                    </article>
-
-                    <!-- Feature 3: Medical Report OCR -->
-                    <article class="feature-card" data-animate>
-                        <div class="feature-icon feature-icon-purple">
-                            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                                <path d="M7 3.5h10.5L21 7v17.5H7V3.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                                <path d="M17 3.5v4h4M10.5 12.5h7M10.5 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <h3 class="feature-title">Medical Report OCR</h3>
-                        <p class="feature-desc">Upload medical test reports as images. PaddleOCR extracts text data that the AI incorporates into its diagnosis and prescription.</p>
-                        <div class="feature-tags">
-                            <span class="tag">PaddleOCR</span>
-                            <span class="tag">Image Processing</span>
-                        </div>
-                    </article>
-
-                    <!-- Feature 4: AI Diagnosis -->
-                    <article class="feature-card" data-animate>
-                        <div class="feature-icon feature-icon-rose">
-                            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                                <path d="M14 5.833a5.833 5.833 0 00-5.833 5.834C8.167 16.333 14 22.167 14 22.167s5.833-5.834 5.833-10.5A5.833 5.833 0 0014 5.833z" stroke="currentColor" stroke-width="2"/>
-                                <circle cx="14" cy="11.667" r="2.333" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                        </div>
-                        <h3 class="feature-title">AI-Powered Diagnosis</h3>
-                        <p class="feature-desc">A large language model acts as your virtual doctor — asking intelligent follow-up questions and arriving at a professional diagnosis.</p>
-                        <div class="feature-tags">
-                            <span class="tag">LLM</span>
-                            <span class="tag">7+ Questions</span>
-                            <span class="tag">Clinical Logic</span>
-                        </div>
-                    </article>
-
-                    <!-- Feature 5: Prescription Generation -->
-                    <article class="feature-card" data-animate>
-                        <div class="feature-icon feature-icon-amber">
-                            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                                <path d="M8.167 3.5v21h11.666v-21H8.167z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                                <path d="M11.667 8.167h4.666M11.667 11.667h4.666M11.667 15.167h2.333" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <h3 class="feature-title">Prescription Generation</h3>
-                        <p class="feature-desc">Automatically generates complete medical prescriptions with medications, dosages, recommendations, and downloadable PDF documents.</p>
-                        <div class="feature-tags">
-                            <span class="tag">PDF Export</span>
-                            <span class="tag">Medications</span>
-                            <span class="tag">Recommendations</span>
-                        </div>
-                    </article>
-
-                    <!-- Feature 6: Voice Interaction -->
-                    <article class="feature-card" data-animate>
-                        <div class="feature-icon feature-icon-green">
-                            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                                <rect x="10.5" y="3.5" width="7" height="12.833" rx="3.5" stroke="currentColor" stroke-width="2"/>
-                                <path d="M7 13.417a7 7 0 0014 0M14 20.417v4.083M10.5 24.5h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <h3 class="feature-title">Voice Interaction</h3>
-                        <p class="feature-desc">Speak your symptoms naturally. OpenAI Whisper transcribes your speech while gTTS reads the AI doctor's responses aloud for accessibility.</p>
-                        <div class="feature-tags">
-                            <span class="tag">Whisper STT</span>
-                            <span class="tag">gTTS</span>
-                            <span class="tag">Hands-Free</span>
-                        </div>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             HOW IT WORKS SECTION
-        ═══════════════════════════════════════════════════════════════ -->
-        <section class="how-it-works" id="how-it-works">
-            <div class="section-container">
-                <div class="section-header">
-                    <span class="section-badge">Workflow</span>
-                    <h2 class="section-title">How Your <span class="title-gradient">Consultation Works</span></h2>
-                    <p class="section-subtitle">A streamlined, step-by-step process designed to provide accurate medical assessments.</p>
-                </div>
-
-                <div class="steps-timeline">
-                    <div class="timeline-line"></div>
-
-                    <div class="step-item" data-animate>
-                        <div class="step-number">01</div>
-                        <div class="step-content">
-                            <div class="step-icon">👤</div>
-                            <h3>Patient Information</h3>
-                            <p>Enter your name, age, and gender to begin your consultation session.</p>
-                        </div>
-                    </div>
-
-                    <div class="step-item" data-animate>
-                        <div class="step-number">02</div>
-                        <div class="step-content">
-                            <div class="step-icon">📎</div>
-                            <h3>Upload Medical Files</h3>
-                            <p>Optionally upload X-ray images for fracture detection or medical test reports for OCR analysis.</p>
-                        </div>
-                    </div>
-
-                    <div class="step-item" data-animate>
-                        <div class="step-number">03</div>
-                        <div class="step-content">
-                            <div class="step-icon">💬</div>
-                            <h3>Describe Symptoms</h3>
-                            <p>Tell the AI doctor about your symptoms using text or voice — whichever you prefer.</p>
-                        </div>
-                    </div>
-
-                    <div class="step-item" data-animate>
-                        <div class="step-number">04</div>
-                        <div class="step-content">
-                            <div class="step-icon">🤖</div>
-                            <h3>AI Follow-Up Questions</h3>
-                            <p>The AI asks 7+ targeted medical questions to build a comprehensive understanding of your condition.</p>
-                        </div>
-                    </div>
-
-                    <div class="step-item" data-animate>
-                        <div class="step-number">05</div>
-                        <div class="step-content">
-                            <div class="step-icon">📋</div>
-                            <h3>Prescription Generated</h3>
-                            <p>Receive a complete prescription with diagnosis, medications, recommendations, and a downloadable PDF.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             CAPABILITIES / TECH SECTION
-        ═══════════════════════════════════════════════════════════════ -->
-        <section class="capabilities" id="capabilities">
-            <div class="section-container">
-                <div class="section-header">
-                    <span class="section-badge">Technology Stack</span>
-                    <h2 class="section-title">Built With <span class="title-gradient">Cutting-Edge AI</span></h2>
-                    <p class="section-subtitle">Multiple specialized AI models working together for a comprehensive medical analysis pipeline.</p>
-                </div>
-
-                <div class="tech-cards">
-                    <div class="tech-card" data-animate>
-                        <div class="tech-card-glow"></div>
-                        <h4>Large Language Model</h4>
-                        <p>Powers the conversational AI doctor, diagnosis reasoning, and prescription generation via OpenRouter API.</p>
-                    </div>
-                    <div class="tech-card" data-animate>
-                        <div class="tech-card-glow"></div>
-                        <h4>ResNet50 CNN Models</h4>
-                        <p>Three specialized deep learning models for detecting fractures in elbow, hand/wrist, and shoulder X-rays.</p>
-                    </div>
-                    <div class="tech-card" data-animate>
-                        <div class="tech-card-glow"></div>
-                        <h4>PaddleOCR</h4>
-                        <p>Optical Character Recognition engine that extracts text data from uploaded medical test report images.</p>
-                    </div>
-                    <div class="tech-card" data-animate>
-                        <div class="tech-card-glow"></div>
-                        <h4>OpenAI Whisper</h4>
-                        <p>State-of-the-art speech recognition model for hands-free symptom description and voice interaction.</p>
-                    </div>
-                    <div class="tech-card" data-animate>
-                        <div class="tech-card-glow"></div>
-                        <h4>Google Text-to-Speech</h4>
-                        <p>Converts AI doctor responses to natural speech, enabling a fully accessible voice-based consultation.</p>
-                    </div>
-                    <div class="tech-card" data-animate>
-                        <div class="tech-card-glow"></div>
-                        <h4>ReportLab PDF Engine</h4>
-                        <p>Generates professional medical prescription documents with structured formatting and clinical layout.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             CTA SECTION
-        ═══════════════════════════════════════════════════════════════ -->
-        <section class="cta-section">
-            <div class="section-container">
-                <div class="cta-card" data-animate>
-                    <div class="cta-glow"></div>
-                    <h2>Ready for Your AI Consultation?</h2>
-                    <p>Experience the future of healthcare with our intelligent virtual medical assistant. Get professional symptom analysis, X-ray insights, and a comprehensive prescription in minutes.</p>
-                    <a href="chatbot.html" class="btn btn-primary btn-lg btn-cta">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M17 10c0 3.866-3.134 7-7 7a6.97 6.97 0 01-3.5-.938L3 17l.938-3.5A6.97 6.97 0 013 10c0-3.866 3.134-7 7-7s7 3.134 7 7z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M7.5 10h.01M10 10h.01M12.5 10h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        <span>Begin Consultation Now</span>
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </a>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- ═══════════════════════════════════════════════════════════════
-         FOOTER
-    ═══════════════════════════════════════════════════════════════ -->
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="nav-logo">
-                        <div class="logo-icon">
-                            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-                                <rect width="32" height="32" rx="8" fill="url(#logoGrad2)"/>
-                                <path d="M16 7v18M7 16h18" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-                                <defs>
-                                    <linearGradient id="logoGrad2" x1="0" y1="0" x2="32" y2="32">
-                                        <stop stop-color="#0ea5e9"/>
-                                        <stop offset="1" stop-color="#06b6d4"/>
-                                    </linearGradient>
-                                </defs>
-                            </svg>
-                        </div>
-                        <span class="logo-text">AI <span class="logo-accent">Doctor</span></span>
-                    </div>
-                    <p class="footer-desc">AI-powered virtual medical assistant providing intelligent symptom analysis, fracture detection, and prescription generation.</p>
-                </div>
-                <div class="footer-links">
-                    <h4>Quick Links</h4>
-                    <a href="#features">Features</a>
-                    <a href="#how-it-works">How It Works</a>
-                    <a href="#capabilities">Technology</a>
-                    <a href="chatbot.html">Start Consultation</a>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 AI Doctor — Virtual Medical Assistant. For educational purposes only.</p>
-                <p class="footer-disclaimer">⚠️ This AI system is not a substitute for professional medical advice. Always consult a qualified healthcare provider.</p>
             </div>
         </div>
-    </footer>
 
-    <script src="script.js"></script>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FEATURES SECTION
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="features" id="features">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Features</span>
+            <h2>Advanced Medical <span class="text-gradient">AI Capabilities</span></h2>
+            <p>Our platform combines cutting-edge AI with medical expertise to deliver comprehensive healthcare assistance.</p>
+        </div>
+
+        <div class="features__grid">
+            <!-- Card 1: AI Consultation -->
+            <div class="feature-card">
+                <div class="feature-card__icon feature-card__icon--blue">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                </div>
+                <h3 class="feature-card__title">AI Medical Consultation</h3>
+                <p class="feature-card__desc">Engage in natural conversations with our AI doctor. Describe symptoms, answer follow-up questions, and receive detailed medical assessments.</p>
+                <div class="feature-card__tags">
+                    <span class="tag">Natural Language</span>
+                    <span class="tag">Follow-up Questions</span>
+                    <span class="tag">Symptom Analysis</span>
+                </div>
+            </div>
+
+            <!-- Card 2: Medical Image Analysis -->
+            <div class="feature-card">
+                <div class="feature-card__icon feature-card__icon--teal">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V15"/><path d="M18 18H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4.5"/><path d="M2 14v4a2 2 0 0 0 2 2h14"/><rect x="10" y="10" width="8" height="8" rx="1"/></svg>
+                </div>
+                <h3 class="feature-card__title">Medical Image Analysis</h3>
+                <p class="feature-card__desc">Upload X-rays, MRIs, or medical scans for AI-powered analysis. Our deep learning models can detect fractures, abnormalities, and more.</p>
+                <div class="feature-card__tags">
+                    <span class="tag">X-Ray Analysis</span>
+                    <span class="tag">Fracture Detection</span>
+                    <span class="tag">Deep Learning</span>
+                </div>
+            </div>
+
+            <!-- Card 3: Smart Prescriptions -->
+            <div class="feature-card">
+                <div class="feature-card__icon feature-card__icon--violet">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 12h4"/><path d="M10 16h4"/><path d="M10 8h1"/></svg>
+                </div>
+                <h3 class="feature-card__title">Smart Prescriptions</h3>
+                <p class="feature-card__desc">Generate detailed prescriptions with medication recommendations, dosage instructions, and important precautions based on AI diagnosis.</p>
+                <div class="feature-card__tags">
+                    <span class="tag">Auto-Generated</span>
+                    <span class="tag">PDF Export</span>
+                    <span class="tag">Dosage Info</span>
+                </div>
+            </div>
+
+            <!-- Card 4: Lab Report Analysis -->
+            <div class="feature-card">
+                <div class="feature-card__icon feature-card__icon--rose">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2v6a2 2 0 0 0 2 2h6"/><path d="M16 22h2a2 2 0 0 0 2-2V8l-6-6H6a2 2 0 0 0-2 2v4"/><path d="m3 15 2 2 4-4"/><path d="m3 21 2 2 4-4"/></svg>
+                </div>
+                <h3 class="feature-card__title">Lab Report Analysis</h3>
+                <p class="feature-card__desc">Upload medical test results for comprehensive analysis. Our OCR technology extracts data and AI interprets the results.</p>
+                <div class="feature-card__tags">
+                    <span class="tag">OCR Extraction</span>
+                    <span class="tag">Result Interpretation</span>
+                    <span class="tag">Trend Analysis</span>
+                </div>
+            </div>
+
+            <!-- Card 5: Voice Interaction -->
+            <div class="feature-card">
+                <div class="feature-card__icon feature-card__icon--amber">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                </div>
+                <h3 class="feature-card__title">Voice Interaction</h3>
+                <p class="feature-card__desc">Speak naturally with speech-to-text technology and hear AI responses through text-to-speech. Fully hands-free consultations.</p>
+                <div class="feature-card__tags">
+                    <span class="tag">Speech-to-Text</span>
+                    <span class="tag">Text-to-Speech</span>
+                    <span class="tag">Hands-Free</span>
+                </div>
+            </div>
+
+            <!-- Card 6: Privacy & Security -->
+            <div class="feature-card">
+                <div class="feature-card__icon feature-card__icon--green">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <h3 class="feature-card__title">Privacy & Security</h3>
+                <p class="feature-card__desc">Your medical data is processed securely. No data is stored permanently, and all communications are encrypted and private.</p>
+                <div class="feature-card__tags">
+                    <span class="tag">Encrypted</span>
+                    <span class="tag">No Storage</span>
+                    <span class="tag">HIPAA-Aware</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     HOW IT WORKS SECTION
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="how-it-works" id="how-it-works">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Process</span>
+            <h2>How It <span class="text-gradient">Works</span></h2>
+            <p>Get started with your AI medical consultation in just a few simple steps.</p>
+        </div>
+
+        <div class="steps">
+            <div class="steps__line"></div>
+
+            <!-- Step 1 -->
+            <div class="step">
+                <div class="step__number">1</div>
+                <div class="step__content">
+                    <span class="step__icon">📋</span>
+                    <h3 class="step__title">Enter Your Information</h3>
+                    <p class="step__desc">Provide basic details like name, age, and gender to personalize your consultation experience.</p>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step">
+                <div class="step__number">2</div>
+                <div class="step__content">
+                    <span class="step__icon">💬</span>
+                    <h3 class="step__title">Describe Your Symptoms</h3>
+                    <p class="step__desc">Chat naturally with the AI assistant about your health concerns, symptoms, and medical history.</p>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step">
+                <div class="step__number">3</div>
+                <div class="step__content">
+                    <span class="step__icon">📎</span>
+                    <h3 class="step__title">Upload Medical Files</h3>
+                    <p class="step__desc">Optionally upload X-rays, lab reports, or medical images for AI-powered analysis.</p>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="step">
+                <div class="step__number">4</div>
+                <div class="step__content">
+                    <span class="step__icon">🔍</span>
+                    <h3 class="step__title">AI Analysis</h3>
+                    <p class="step__desc">Our AI processes your information, analyzes symptoms, and generates a comprehensive medical assessment.</p>
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="step">
+                <div class="step__number">5</div>
+                <div class="step__content">
+                    <span class="step__icon">📄</span>
+                    <h3 class="step__title">Get Your Prescription</h3>
+                    <p class="step__desc">Receive a detailed prescription with medication recommendations, dosage info, and precautions.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     CAPABILITIES / TECH SECTION
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="capabilities" id="capabilities">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Technology</span>
+            <h2>Powered by <span class="text-gradient">Advanced AI</span></h2>
+            <p>Built with state-of-the-art AI models and medical knowledge bases for accurate healthcare assistance.</p>
+        </div>
+
+        <div class="tech-grid">
+            <div class="tech-card">
+                <h3 class="tech-card__title">🧠 Large Language Models</h3>
+                <p class="tech-card__desc">Powered by Google's Gemini AI for natural language understanding, medical reasoning, and contextual responses.</p>
+            </div>
+            <div class="tech-card">
+                <h3 class="tech-card__title">🔬 Deep Learning Vision</h3>
+                <p class="tech-card__desc">ResNet50-based models trained on medical imaging datasets for accurate fracture and abnormality detection.</p>
+            </div>
+            <div class="tech-card">
+                <h3 class="tech-card__title">📝 OCR Technology</h3>
+                <p class="tech-card__desc">Advanced optical character recognition for extracting data from lab reports, prescriptions, and medical documents.</p>
+            </div>
+            <div class="tech-card">
+                <h3 class="tech-card__title">🎤 Speech Processing</h3>
+                <p class="tech-card__desc">Integrated speech-to-text and text-to-speech engines for hands-free, accessible medical consultations.</p>
+            </div>
+            <div class="tech-card">
+                <h3 class="tech-card__title">📊 Medical Knowledge Base</h3>
+                <p class="tech-card__desc">Comprehensive medical database for symptom analysis, drug interactions, and evidence-based treatment recommendations.</p>
+            </div>
+            <div class="tech-card">
+                <h3 class="tech-card__title">⚡ Real-time Processing</h3>
+                <p class="tech-card__desc">Optimized backend for fast response times, real-time image analysis, and instant prescription generation.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     CTA SECTION
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="cta" id="cta">
+    <div class="container">
+        <div class="cta__card">
+            <div class="cta__glow"></div>
+            <h2 class="cta__title">Ready to Experience <span class="text-gradient">AI Healthcare?</span></h2>
+            <p class="cta__desc">Start your free AI medical consultation today. No sign-up required. Get instant health insights powered by advanced artificial intelligence.</p>
+            <a href="chatbot.html" class="btn-primary cta__btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                Start Consultation Now
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════════════════════ -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer__inner">
+            <div class="footer__brand">
+                <div class="footer__brand-logo">
+                    <span class="footer__brand-logo-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.8 2.62a2 2 0 0 1 1.2-.42h0a2 2 0 0 1 2 2v4.5a6 6 0 0 1-12 0V4.2a2 2 0 0 1 2-2h0a2 2 0 0 1 1.2.42"/><path d="M2 8v1a6 6 0 0 0 12 0V8"/><circle cx="20" cy="10" r="2"/><path d="M20 12v8a2 2 0 0 1-2 2h-1.93a2 2 0 0 1-1.66-.9l-.82-1.2a2 2 0 0 0-1.66-.9H8"/></svg>
+                    </span>
+                    <span class="footer__brand-text">Luminous AI</span>
+                </div>
+                <p class="footer__brand-desc">AI-powered medical assistant providing intelligent health consultations, medical image analysis, and prescription generation.</p>
+            </div>
+            <div class="footer__links">
+                <h4>Quick Links</h4>
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#capabilities">Capabilities</a>
+                <a href="chatbot.html">Start Consultation</a>
+            </div>
+        </div>
+
+        <div class="footer__bottom">
+            <p class="footer__copyright">&copy; 2025 Luminous AI. All rights reserved.</p>
+            <p class="footer__disclaimer">⚕️ This AI assistant is for informational purposes only and does not replace professional medical advice.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Scripts -->
+<script src="script.js"></script>
 </body>
 </html>
