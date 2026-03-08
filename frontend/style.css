@@ -408,9 +408,8 @@ html.light .btn-ghost:hover {
 }
 
 .navbar__logo-icon {
-    width: 36px; height: 36px;
+    width: 52px; height: 52px;
     border-radius: 0.5rem;
-    background: var(--gradient-primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -422,7 +421,7 @@ html.light .btn-ghost:hover {
     transform: rotate(10deg) scale(1.05);
 }
 
-.navbar__logo-icon svg { width: 20px; height: 20px; }
+.navbar__logo-icon img { width: 36px; height: 36px; }
 
 .navbar__logo-text {
     font-family: var(--font-display);
@@ -1138,15 +1137,14 @@ html.light .tech-card { background: hsla(210, 40%, 96%, 0.4); }
 }
 
 .footer__brand-logo-icon {
-    width: 28px; height: 28px;
+    width: 40px; height: 40px;
     border-radius: 0.5rem;
-    background: var(--gradient-primary);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
-.footer__brand-logo-icon svg { width: 16px; height: 16px; }
+.footer__brand-logo-icon img { width: 24px; height: 24px; }
 
 .footer__brand-text {
     font-family: var(--font-display);
@@ -1237,15 +1235,14 @@ html.light .tech-card { background: hsla(210, 40%, 96%, 0.4); }
 }
 
 .chat-header__logo-icon {
-    width: 36px; height: 36px;
+    width: 52px; height: 52px;
     border-radius: 0.5rem;
-    background: var(--gradient-primary);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
-.chat-header__logo-icon svg { width: 20px; height: 20px; }
+.chat-header__logo-icon img { width: 36px; height: 36px; }
 
 .chat-header__title { font-size: 1rem; font-weight: 600; }
 
