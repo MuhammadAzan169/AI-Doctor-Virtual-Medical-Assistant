@@ -408,7 +408,7 @@ html.light .btn-ghost:hover {
 }
 
 .navbar__logo-icon {
-    width: 52px; height: 52px;
+    width: 76px; height: 76px;
     border-radius: 0.5rem;
     display: flex;
     align-items: center;
@@ -421,7 +421,7 @@ html.light .btn-ghost:hover {
     transform: rotate(10deg) scale(1.05);
 }
 
-.navbar__logo-icon img { width: 36px; height: 36px; }
+.navbar__logo-icon img { width: 60px; height: 60px; }
 
 .navbar__logo-text {
     font-family: var(--font-display);
@@ -1137,14 +1137,14 @@ html.light .tech-card { background: hsla(210, 40%, 96%, 0.4); }
 }
 
 .footer__brand-logo-icon {
-    width: 40px; height: 40px;
+    width: 56px; height: 56px;
     border-radius: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
-.footer__brand-logo-icon img { width: 24px; height: 24px; }
+.footer__brand-logo-icon img { width: 40px; height: 40px; }
 
 .footer__brand-text {
     font-family: var(--font-display);
@@ -1235,14 +1235,14 @@ html.light .tech-card { background: hsla(210, 40%, 96%, 0.4); }
 }
 
 .chat-header__logo-icon {
-    width: 52px; height: 52px;
+    width: 76px; height: 76px;
     border-radius: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
-.chat-header__logo-icon img { width: 36px; height: 36px; }
+.chat-header__logo-icon img { width: 60px; height: 60px; }
 
 .chat-header__title { font-size: 1rem; font-weight: 600; }
 
