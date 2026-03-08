@@ -102,11 +102,17 @@
 <div class="form-overlay" id="form-overlay" role="dialog" aria-modal="true" aria-label="Patient Information">
     <div class="form-card glass">
         <div class="form-card__header">
-            <div class="form-card__icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <!-- Back -->
+            <a href="index.html" class="form-header__back" aria-label="Back to home">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </a>
+            <div class="form-card__header-content">
+                <div class="form-card__icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <h2 class="form-card__title">Patient Information</h2>
+                <p class="form-card__subtitle">Please provide your details to begin the consultation.</p>
             </div>
-            <h2 class="form-card__title">Patient Information</h2>
-            <p class="form-card__subtitle">Please provide your details to begin the consultation.</p>
         </div>
 
         <form id="patient-form" novalidate>
@@ -126,7 +132,17 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
                         Age
                     </label>
-                    <input type="number" id="patient-age" placeholder="e.g. 30" min="1" max="120" required />
+                    <div class="age-input-wrapper">
+                        <input type="number" id="patient-age" placeholder="e.g. 30" min="1" max="120" required />
+                        <div class="age-arrows">
+                            <button class="age-arrow age-arrow--up" type="button" aria-label="Increase age">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                            </button>
+                            <button class="age-arrow age-arrow--down" type="button" aria-label="Decrease age">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="patient-gender">
@@ -137,7 +153,6 @@
                         <option value="" disabled selected>Select gender</option>
                         <option value="male">Male</option>
                         <option value="female">Female</option>
-                        <option value="other">Other</option>
                     </select>
                 </div>
             </div>

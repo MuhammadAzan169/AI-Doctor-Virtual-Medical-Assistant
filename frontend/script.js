@@ -380,6 +380,23 @@ const PatientForm = (() => {
         if (!overlay || !form) return;
 
         form.addEventListener('submit', handleSubmit);
+
+        // Age arrow functionality
+        const ageInput = document.getElementById('patient-age');
+        const upArrow = document.querySelector('.age-arrow--up');
+        const downArrow = document.querySelector('.age-arrow--down');
+
+        if (upArrow && downArrow && ageInput) {
+            upArrow.addEventListener('click', () => adjustAge(ageInput, 1));
+            downArrow.addEventListener('click', () => adjustAge(ageInput, -1));
+        }
+    }
+
+    function adjustAge(input, delta) {
+        let value = parseInt(input.value) || 0;
+        value += delta;
+        value = Math.max(1, Math.min(120, value)); // Clamp between 1 and 120
+        input.value = value;
     }
 
     function handleSubmit(e) {
