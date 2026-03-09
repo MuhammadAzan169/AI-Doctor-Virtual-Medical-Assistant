@@ -1,17 +1,27 @@
-streamlit
+# FastAPI backend
+fastapi
+uvicorn[standard]
+python-multipart
+python-dotenv
+
+# LLM client
 openai
-whisper
+
+# Speech-to-text (Whisper)
 openai-whisper
+
+# Text-to-speech
+gtts
+
+# AI / Deep Learning
 numpy
 tensorflow
 keras
+
+# OCR
 paddleocr
+paddlepaddle
+
+# PDF generation
 reportlab
 PyPDF2
-sounddevice
-scipy
-silero-vad
-gtts
-pygame
-paddlepaddle
-python-dotenv

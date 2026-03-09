@@ -1,7 +1,7 @@
 import numpy as np  # For numerical operations and array handling
 import tensorflow as tf  # TensorFlow for loading and using deep learning models
-from keras.preprocessing import image  # For image preprocessing
-import os  # For file system interactions (not used in this snippet)
+from tensorflow.keras.utils import load_img, img_to_array  # For image preprocessing
+import os  # For file system interactions
 
 # Load pre-trained models for fracture detection and body part classification
 model_elbow_frac = tf.keras.models.load_model("fracture_models/ResNet50_Elbow_frac_best.h5")  # Elbow fracture model
@@ -16,8 +16,8 @@ categories_fracture = ["fractured", "normal"]  # Possible fracture status labels
 # Function to predict whether a bone in an image is fractured and identify the body part
 def predict_fracture(image_path):
     size = 224  # Target input size for the model
-    temp_img = image.load_img(image_path, target_size=(size, size))  # Load and resize the image
-    x = image.img_to_array(temp_img)  # Convert image to array
+    temp_img = load_img(image_path, target_size=(size, size))  # Load and resize the image
+    x = img_to_array(temp_img)  # Convert image to array
     x = np.expand_dims(x, axis=0)  # Add batch dimension
     images = np.vstack([x])  # Stack image into a batch (1 image here)
 

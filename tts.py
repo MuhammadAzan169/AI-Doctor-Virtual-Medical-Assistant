@@ -1,21 +1,27 @@
-from gtts import gTTS  # Import Google Text-to-Speech library
-import pygame  # Import pygame for audio playback
-import tempfile  # Import tempfile for creating temporary files
-import os  # Import os for file operations like deletion
+import os
+import tempfile
+from gtts import gTTS
 
-def text_to_speech(text, lang='en'):  # Function to convert given text to speech
-    tts = gTTS(text=text, lang=lang, slow=False)  # Create a gTTS object with specified language and speed
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as fp:  # Create a temporary MP3 file
-        temp_path = fp.name  # Store the path of the temporary file
-        tts.save(temp_path)  # Save the generated speech to the temp file
+def text_to_speech_file(text: str, lang: str = "en") -> str:
+    """
+    Convert text to speech using Google TTS and save as a temporary MP3 file.
 
-    pygame.mixer.init()  # Initialize the pygame mixer
-    pygame.mixer.music.load(temp_path)  # Load the MP3 file into the mixer
-    pygame.mixer.music.play()  # Play the audio file
+    Parameters
+    ----------
+    text : str
+        The text to synthesise.
+    lang : str, optional
+        BCP-47 language code (default "en").
 
-    while pygame.mixer.music.get_busy():  # Keep checking if music is still playing
-        pygame.time.Clock().tick(10)  # Wait for a short time to avoid high CPU usage
-
-    pygame.mixer.quit()  # Quit the mixer after playback
-    os.remove(temp_path)  # Delete the temporary MP3 file
+    Returns
+    -------
+    str
+        Absolute path to the generated MP3 file.  The caller is
+        responsible for deleting it after use.
+    """
+    tts = gTTS(text=text, lang=lang, slow=False)
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+    tmp.close()
+    tts.save(tmp.name)
+    return tmp.name

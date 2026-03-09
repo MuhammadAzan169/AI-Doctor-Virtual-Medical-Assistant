@@ -12,13 +12,16 @@
    7. Patient Form Handler
    8. File Upload Zones
    9. Message Renderer
-   10. Follow-up Question Flow
-   11. Prescription Generator & Modal
-   12. Chat Input Controller
-   13. Initialization
+   10. Prescription Modal
+   11. Chat Input Controller
+   12. Initialization
    ═══════════════════════════════════════════════════════════════════════ */
 
 'use strict';
+
+// Global session tracking
+let sessionId = null;
+let currentPhase = 'idle';
 
 /* ═══════════════════════════════════════════════════════════════════════
    1. THEME SYSTEM
@@ -185,24 +188,11 @@ const SmoothScroll = (() => {
    6. CHAT STATE MACHINE
    ═══════════════════════════════════════════════════════════════════════ */
 
-const FOLLOW_UP_QUESTIONS = [
-    "On a scale of 1 to 10, how would you rate the severity of your symptoms?",
-    "When did you first start experiencing these symptoms?",
-    "Have you experienced similar symptoms before in the past?",
-    "Are you currently taking any medications, vitamins, or supplements?",
-    "Do you have any known allergies, especially to medications?",
-    "Do you have any pre-existing medical conditions?",
-    "Have you noticed any other symptoms accompanying your main complaint?",
-    "Is there any family history of relevant medical conditions?",
-];
-
 const ChatState = (() => {
     let state = {
-        phase: 'idle',       // idle | symptom | followup | complete
+        phase: 'idle',       // idle | active (phase driven by backend)
         patient: null,       // { name, age, gender }
         messages: [],        // [{ role, content, time }]
-        questionIdx: 0,
-        answers: [],
         xrayFile: null,
         reportFile: null,
         prescription: null,
@@ -220,13 +210,14 @@ const ChatState = (() => {
             phase: 'idle',
             patient: null,
             messages: [],
-            questionIdx: 0,
-            answers: [],
             xrayFile: null,
             reportFile: null,
             prescription: null,
             isProcessing: false,
         };
+        // Also reset global session variables
+        sessionId = null;
+        currentPhase = 'idle';
     }
 
     return { get, set, reset };
@@ -239,10 +230,6 @@ const ChatState = (() => {
 
 function getTimeStamp() {
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-function wait(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function escapeHtml(text) {
@@ -395,11 +382,11 @@ const PatientForm = (() => {
     function adjustAge(input, delta) {
         let value = parseInt(input.value) || 0;
         value += delta;
-        value = Math.max(1, Math.min(120, value)); // Clamp between 1 and 120
+        value = Math.max(1, Math.min(120, value));
         input.value = value;
     }
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
         const name = document.getElementById('patient-name').value.trim();
         const age = document.getElementById('patient-age').value.trim();
@@ -409,34 +396,59 @@ const PatientForm = (() => {
 
         const { xrayFile, reportFile } = ChatState.get();
 
-        ChatState.set({
-            patient: { name, age, gender },
-            phase: 'symptom',
-        });
+        // Store patient info locally
+        ChatState.set({ patient: { name, age, gender } });
 
-        // Hide form with animation
-        const overlay = document.getElementById('form-overlay');
-        overlay.classList.add('form-overlay--hiding');
-        setTimeout(() => {
-            overlay.classList.add('hidden');
-            overlay.classList.remove('form-overlay--hiding');
-        }, 300);
+        // Prepare FormData
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('age', age);
+        formData.append('gender', gender);
+        if (xrayFile) formData.append('xray', xrayFile);
+        if (reportFile) formData.append('report', reportFile);
 
-        // Update header status
-        updateHeaderStatus('Consultation active');
+        // Show loading state
+        ChatState.set({ isProcessing: true });
+        rerenderChat();
 
-        // Welcome message
-        let welcome = `Hello, ${name}! I'm your AI Doctor. 👋\n\nI can see you're ${age} years old. Welcome to your virtual medical consultation.\n\n`;
-        if (xrayFile) welcome += '📸 I received your X-ray image — I\'ll analyze it as part of the consultation.\n';
-        if (reportFile) welcome += '📋 I received your medical test report — I\'ll include its findings.\n';
-        welcome += '\nPlease describe your symptoms in detail so I can begin the assessment.';
+        try {
+            const res = await fetch('/api/start-consultation', {
+                method: 'POST',
+                body: formData
+            });
 
-        setTimeout(() => {
-            addMessage('ai', welcome);
-            addMessage('system', 'Consultation started — describe your symptoms below');
+            if (!res.ok) {
+                throw new Error(`HTTP error ${res.status}`);
+            }
+
+            const data = await res.json();
+            sessionId = data.session_id;
+            currentPhase = data.phase;
+
+            // Update ChatState phase
+            ChatState.set({ phase: data.phase, isProcessing: false });
+
+            // Hide form with animation
+            const overlay = document.getElementById('form-overlay');
+            overlay.classList.add('form-overlay--hiding');
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                overlay.classList.remove('form-overlay--hiding');
+            }, 300);
+
+            // Update header
+            updateHeaderStatus('Consultation active');
+
+            // Add the initial AI message from the backend
+            addMessage('ai', data.message);
             rerenderChat();
             enableInput();
-        }, 400);
+        } catch (error) {
+            console.error('Failed to start consultation:', error);
+            ChatState.set({ isProcessing: false });
+            addMessage('ai', 'Sorry, there was an error starting the consultation. Please try again.');
+            rerenderChat();
+        }
     }
 
     return { init };
@@ -531,138 +543,8 @@ const FileUpload = (() => {
 
 
 /* ═══════════════════════════════════════════════════════════════════════
-   10. FOLLOW-UP QUESTION FLOW
+   11. PRESCRIPTION MODAL
    ═══════════════════════════════════════════════════════════════════════ */
-
-async function processSymptoms(symptomText) {
-    ChatState.set({ isProcessing: true });
-    updateHeaderStatus('AI Doctor is thinking...');
-    rerenderChat();
-
-    await wait(2000 + Math.random() * 1500);
-
-    ChatState.set({ isProcessing: false });
-    updateHeaderStatus('Consultation active');
-
-    const { xrayFile, reportFile } = ChatState.get();
-
-    if (xrayFile) {
-        addMessage('ai', '🩻 **X-Ray Analysis:** I\'ve processed your uploaded X-ray image. The AI fracture detection model has analyzed the image, and I\'ll incorporate the findings into the diagnosis.\n\nNow, I need to ask you some follow-up questions to better understand your condition.');
-        rerenderChat();
-        await wait(1000);
-    }
-
-    if (reportFile) {
-        addMessage('ai', '📋 **Test Report Received:** Your medical test report has been processed via OCR, and the extracted data will be considered in the assessment.');
-        rerenderChat();
-        await wait(1000);
-    }
-
-    ChatState.set({
-        phase: 'followup',
-        questionIdx: 0,
-        answers: [],
-    });
-
-    addMessage('ai', `**Question 1 of ${FOLLOW_UP_QUESTIONS.length}:**\n\n${FOLLOW_UP_QUESTIONS[0]}`);
-    rerenderChat();
-}
-
-async function processFollowUp(answerText) {
-    const s = ChatState.get();
-    const newAnswers = [...s.answers, answerText];
-    const nextIdx = s.questionIdx + 1;
-
-    ChatState.set({ answers: newAnswers });
-
-    if (nextIdx < FOLLOW_UP_QUESTIONS.length) {
-        ChatState.set({ isProcessing: true });
-        updateHeaderStatus('AI Doctor is thinking...');
-        rerenderChat();
-
-        await wait(800 + Math.random() * 800);
-
-        ChatState.set({
-            isProcessing: false,
-            questionIdx: nextIdx,
-        });
-        updateHeaderStatus('Consultation active');
-
-        addMessage('ai', `**Question ${nextIdx + 1} of ${FOLLOW_UP_QUESTIONS.length}:**\n\n${FOLLOW_UP_QUESTIONS[nextIdx]}`);
-        rerenderChat();
-    } else {
-        addMessage('system', 'All follow-up questions answered ✅');
-        rerenderChat();
-        await generatePrescription();
-    }
-}
-
-
-/* ═══════════════════════════════════════════════════════════════════════
-   11. PRESCRIPTION GENERATOR & MODAL
-   ═══════════════════════════════════════════════════════════════════════ */
-
-async function generatePrescription() {
-    ChatState.set({ isProcessing: true });
-    updateHeaderStatus('Generating prescription...');
-    rerenderChat();
-
-    await wait(3000 + Math.random() * 2000);
-
-    const { patient, xrayFile, reportFile } = ChatState.get();
-    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-
-    const rx = {
-        patient_info: {
-            name: patient.name,
-            age: parseInt(patient.age),
-            gender: patient.gender,
-            date: today,
-        },
-        diagnosis: 'This is a simulated diagnosis. When connected to the backend, the AI will provide a detailed clinical diagnosis based on your symptoms, follow-up answers, and any uploaded medical files.',
-        medication: [
-            {
-                name: 'Simulated Medication A',
-                dosage_and_route: '500mg orally',
-                frequency_and_duration: 'Twice daily for 7 days',
-                refills: 'None',
-                special_instructions: 'Take with food.',
-            },
-            {
-                name: 'Simulated Medication B',
-                dosage_and_route: '10mg orally',
-                frequency_and_duration: 'Once daily for 14 days',
-                refills: '1 refill',
-                special_instructions: 'Take before bedtime.',
-            },
-        ],
-        non_pharmacological_recommendations: [
-            { title: 'Ensure adequate rest and hydration' },
-            { title: 'Monitor symptoms and seek emergency care if they worsen' },
-            { title: 'Schedule a follow-up appointment in 2 weeks' },
-        ],
-        medical_tests: [
-            { test_name: 'Complete Blood Count (CBC)' },
-            { test_name: 'Basic Metabolic Panel' },
-        ],
-        prescriber: { name: 'AI Doctor — Virtual Medical Assistant' },
-    };
-
-    ChatState.set({
-        prescription: rx,
-        phase: 'complete',
-        isProcessing: false,
-    });
-    updateHeaderStatus('Consultation complete');
-
-    const fileNote = (xrayFile ? ', the X-ray findings' : '') + (reportFile ? ', and your medical test results' : '');
-    addMessage('ai', `Based on my analysis of your symptoms, your answers to the follow-up questions${fileNote}, I've prepared a comprehensive medical prescription for you.\n\n**Diagnosis:** ${rx.diagnosis}\n\nPlease review the full prescription below. Remember, this is an AI-generated assessment — always consult a qualified healthcare provider for confirmation.`);
-    addMessage('ai', '📋 **Your prescription is ready!**\n\nYou can view the complete prescription with medications, recommendations, and tests by clicking the button below.');
-    addMessage('system', 'Consultation complete — You can start a new one anytime');
-
-    rerenderChat();
-    disableInput();
-}
 
 const PrescriptionModal = (() => {
     function open() {
@@ -702,7 +584,11 @@ const PrescriptionModal = (() => {
         if (closeFooter) closeFooter.addEventListener('click', close);
         if (downloadBtn) {
             downloadBtn.addEventListener('click', () => {
-                alert('PDF download will be available when connected to the backend API.');
+                if (sessionId) {
+                    window.open(`/api/prescription/${sessionId}`, '_blank');
+                } else {
+                    alert('No active session to download prescription.');
+                }
             });
         }
 
@@ -787,6 +673,32 @@ const PrescriptionModal = (() => {
 
 
 /* ═══════════════════════════════════════════════════════════════════════
+   Helper: Show Prescription Download Button
+   ═══════════════════════════════════════════════════════════════════════ */
+
+function showPrescriptionDownload(sid) {
+    // Remove any existing download button first
+    const existing = document.querySelector('.prescription-download-btn');
+    if (existing) existing.remove();
+
+    const downloadBtn = document.createElement('button');
+    downloadBtn.className = 'prescription-download-btn';
+    downloadBtn.textContent = '📥 Download Prescription PDF';
+    downloadBtn.onclick = () => window.open(`/api/prescription/${sid}`, '_blank');
+
+    // Append to chat area (e.g., after the last message)
+    const chatContainer = document.getElementById('chat-messages');
+    if (chatContainer) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'chat-msg chat-msg--ai';
+        wrapper.appendChild(downloadBtn);
+        chatContainer.appendChild(wrapper);
+        MessageRenderer.scrollToBottom(chatContainer.parentElement);
+    }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
    12. CHAT INPUT CONTROLLER
    ═══════════════════════════════════════════════════════════════════════ */
 
@@ -823,26 +735,61 @@ const ChatInput = (() => {
 
     async function handleSend() {
         const text = textarea.value.trim();
-        const { phase, isProcessing } = ChatState.get();
-        if (!text || isProcessing) return;
+        const { isProcessing } = ChatState.get();
+        if (!text || isProcessing || !sessionId) return;
 
+        // Add user message immediately
         addMessage('user', text);
         textarea.value = '';
         textarea.style.height = 'auto';
         updateSendState();
         rerenderChat();
 
-        if (phase === 'symptom') {
-            await processSymptoms(text);
-        } else if (phase === 'followup') {
-            await processFollowUp(text);
+        // Show processing indicator
+        ChatState.set({ isProcessing: true });
+        rerenderChat();
+
+        try {
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: sessionId, message: text })
+            });
+
+            if (!res.ok) {
+                throw new Error(`HTTP error ${res.status}`);
+            }
+
+            const data = await res.json();
+            // Add AI response
+            addMessage('ai', data.message);
+
+            // Update phase and possibly prescription flag
+            currentPhase = data.phase;
+            ChatState.set({ phase: data.phase });
+
+            if (data.prescription_ready) {
+                // Store prescription if included
+                if (data.prescription) {
+                    ChatState.set({ prescription: data.prescription });
+                }
+                showPrescriptionDownload(sessionId);
+            }
+
+            ChatState.set({ isProcessing: false });
+            rerenderChat();
+        } catch (error) {
+            console.error('Chat error:', error);
+            ChatState.set({ isProcessing: false });
+            addMessage('ai', 'Sorry, an error occurred. Please try again.');
+            rerenderChat();
         }
     }
 
     function updateSendState() {
         if (!textarea || !sendBtn) return;
-        const { phase, isProcessing } = ChatState.get();
-        const isDisabled = isProcessing || phase === 'complete' || phase === 'idle';
+        const { isProcessing, phase } = ChatState.get();
+        const isDisabled = isProcessing || phase === 'complete' || !sessionId;
         const hasText = textarea.value.trim().length > 0;
 
         sendBtn.disabled = isDisabled || !hasText;
@@ -855,8 +802,10 @@ const ChatInput = (() => {
         // Placeholder
         if (phase === 'complete') {
             textarea.placeholder = 'Consultation complete. Click ＋ for a new session.';
+        } else if (!sessionId) {
+            textarea.placeholder = 'Please start a consultation first.';
         } else {
-            textarea.placeholder = 'Describe your symptoms or answer the question...';
+            textarea.placeholder = 'Type your message...';
         }
     }
 
@@ -892,7 +841,6 @@ function disableInput() {
 function updateHeaderStatus(text) {
     const statusEl = document.querySelector('.chat-header__status');
     if (!statusEl) return;
-    // Preserve the dot element, rebuild content
     let dot = statusEl.querySelector('.chat-header__status-dot');
     statusEl.innerHTML = '';
     if (!dot) {

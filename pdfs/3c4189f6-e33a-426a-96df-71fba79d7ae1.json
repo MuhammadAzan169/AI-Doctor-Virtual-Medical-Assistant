@@ -1,0 +1,90 @@
+{
+  "patient_info": {
+    "name": "Muhammad Azan",
+    "age": 21,
+    "gender": "male",
+    "date": "March 09, 2026"
+  },
+  "diagnosis": "Acute Viral Respiratory Infection (likely viral pharyngitis or influenza)",
+  "medication": [
+    {
+      "name": "Paracetamol (Acetaminophen)",
+      "brand_names": [],
+      "dosage_and_route": "500mg orally",
+      "frequency_and_duration": "Every 4-6 hours as needed for fever and headache, for a maximum of 5 days",
+      "refills": "None",
+      "special_instructions": "Take with food to minimize gastrointestinal upset"
+    },
+    {
+      "name": "Pseudoephedrine",
+      "brand_names": [],
+      "dosage_and_route": "30mg orally",
+      "frequency_and_duration": "Every 4-6 hours as needed for nasal congestion, for a maximum of 5 days",
+      "refills": "None",
+      "special_instructions": "Avoid taking with other stimulants or before bedtime"
+    },
+    {
+      "name": "Dextromethorphan",
+      "brand_names": [],
+      "dosage_and_route": "10mg orally",
+      "frequency_and_duration": "Every 4-6 hours as needed for cough, for a maximum of 5 days",
+      "refills": "None",
+      "special_instructions": "Avoid taking with other central nervous system depressants"
+    }
+  ],
+  "non_pharmacological_recommendations": [
+    {
+      "title": "Stay hydrated by drinking plenty of fluids (water, clear broths, electrolyte-rich beverages like sports drinks).",
+      "details": {
+        "text": "Stay hydrated by drinking plenty of fluids (water, clear broths, electrolyte-rich beverages like sports drinks)."
+      }
+    },
+    {
+      "title": "Rest to help your body fight off the infection.",
+      "details": {
+        "text": "Rest to help your body fight off the infection."
+      }
+    },
+    {
+      "title": "Use a humidifier to relieve congestion and cough.",
+      "details": {
+        "text": "Use a humidifier to relieve congestion and cough."
+      }
+    },
+    {
+      "title": "Practice good hygiene (frequent hand washing, avoid close contact with others) to prevent the spread of infection.",
+      "details": {
+        "text": "Practice good hygiene (frequent hand washing, avoid close contact with others) to prevent the spread of infection."
+      }
+    },
+    {
+      "title": "Avoid smoking and secondhand smoke exposure.",
+      "details": {
+        "text": "Avoid smoking and secondhand smoke exposure."
+      }
+    }
+  ],
+  "medical_tests": [
+    {
+      "test_name": "Rapid Influenza Diagnostic Test (RIDT) if influenza is suspected based on clinical presentation and epidemiological context.",
+      "details": {
+        "text": "Rapid Influenza Diagnostic Test (RIDT) if influenza is suspected based on clinical presentation and epidemiological context."
+      }
+    },
+    {
+      "test_name": "Complete Blood Count (CBC) if symptoms worsen or do not improve with treatment, to rule out bacterial infection.",
+      "details": {
+        "text": "Complete Blood Count (CBC) if symptoms worsen or do not improve with treatment, to rule out bacterial infection."
+      }
+    },
+    {
+      "test_name": "*Reasoning**: The patient's symptoms of constant sneezing, fever, headache, and cough, following a long bus trip, are suggestive of an acute viral respiratory infection. The medications prescribed aim to alleviate symptoms (fever reduction, decongestant, and cough suppression) without targeting a specific virus, as antiviral therapy is not indicated for all viral infections and the diagnosis does not specify a particular viral etiology that would require such treatment. The non-pharmacological recommendations support the body's immune response and prevent the spread of infection.",
+      "details": {
+        "text": "*Reasoning**: The patient's symptoms of constant sneezing, fever, headache, and cough, following a long bus trip, are suggestive of an acute viral respiratory infection. The medications prescribed aim to alleviate symptoms (fever reduction, decongestant, and cough suppression) without targeting a specific virus, as antiviral therapy is not indicated for all viral infections and the diagnosis does not specify a particular viral etiology that would require such treatment. The non-pharmacological recommendations support the body's immune response and prevent the spread of infection."
+      }
+    }
+  ],
+  "prescriber": {
+    "name": "Dr. AI Medic, MD"
+  }
+}

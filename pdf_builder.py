@@ -10,7 +10,7 @@ import json
 import os
 from PyPDF2 import PdfReader
 
-def build_pdf(json_path):
+def build_pdf(json_path, output_dir=None, filename=None):
     class HorizontalLine(Flowable):
         def __init__(self, width, thickness=1, color=colors.black):
             super().__init__()
@@ -153,7 +153,9 @@ def build_pdf(json_path):
 
         elements = []
 
-        logo_path = "logo.png"
+        logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logo.png")
+        if not os.path.exists(logo_path):
+            logo_path = "logo.png"
         logo = Image(logo_path)
         logo.drawHeight = 100
         logo.drawWidth = 100
@@ -246,8 +248,11 @@ def build_pdf(json_path):
         doc.build(elements)
 
 
-    temp_filename = "temp_prescription.pdf"
-    final_filename = "prescription.pdf"
+    # Determine output file paths
+    out_dir = output_dir or "."
+    out_name = filename or "prescription.pdf"
+    temp_filename = os.path.join(out_dir, "temp_" + out_name)
+    final_filename = os.path.join(out_dir, out_name)
 
     generate_pdf(temp_filename, include_general_instructions=True)
 
