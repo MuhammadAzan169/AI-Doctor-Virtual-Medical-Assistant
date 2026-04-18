@@ -1,142 +1,260 @@
-import re  # Regular expressions for pattern matching
-import json  # For JSON handling (not used in this snippet)
-from typing import List, Dict  # For type hints
+import re
+import json
+import logging
+from typing import List, Dict, Any
 
-# Main function to extract structured prescription data from unstructured text
-def extract_prescription_data(text: str) -> Dict:
+logger = logging.getLogger(__name__)
 
-    # Helper function to extract a single field using regex
+# ---------- JSON Schema for structured LLM output ----------
+PRESCRIPTION_JSON_SCHEMA: Dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "patient_info": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "age": {"type": "integer"},
+                "gender": {"type": "string"},
+                "date": {"type": "string"},
+            },
+            "required": ["name", "age", "gender", "date"],
+        },
+        "diagnosis": {"type": "string"},
+        "medication": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "dosage_and_route": {"type": "string"},
+                    "frequency_and_duration": {"type": "string"},
+                    "refills": {"type": "string"},
+                    "special_instructions": {"type": "string"},
+                },
+                "required": ["name", "dosage_and_route", "frequency_and_duration"],
+            },
+        },
+        "non_pharmacological_recommendations": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "title": {"type": "string"},
+                    "details": {
+                        "type": "object",
+                        "properties": {"text": {"type": "string"}},
+                    },
+                },
+                "required": ["title", "details"],
+            },
+        },
+        "medical_tests": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "test_name": {"type": "string"},
+                    "details": {
+                        "type": "object",
+                        "properties": {"text": {"type": "string"}},
+                    },
+                },
+                "required": ["test_name", "details"],
+            },
+        },
+        "prescriber": {
+            "type": "object",
+            "properties": {"name": {"type": "string"}},
+        },
+        "reasoning": {"type": "string"},
+    },
+    "required": [
+        "patient_info",
+        "diagnosis",
+        "medication",
+        "non_pharmacological_recommendations",
+        "medical_tests",
+        "prescriber",
+        "reasoning",
+    ],
+}
+
+
+def parse_structured_json(raw_text: str) -> Dict | None:
+    """
+    Try to parse the LLM response as JSON directly.
+    Returns a validated dict or *None* if parsing fails.
+    """
+    # Strip markdown code fences if present
+    cleaned = raw_text.strip()
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned)
+        cleaned = re.sub(r"\s*```$", "", cleaned)
+
+    try:
+        data = json.loads(cleaned)
+    except (json.JSONDecodeError, ValueError):
+        return None
+
+    # Quick structural validation
+    required_keys = {"patient_info", "diagnosis", "medication"}
+    if not required_keys.issubset(data.keys()):
+        logger.warning("Structured JSON missing required keys: %s", required_keys - data.keys())
+        return None
+
+    # Ensure sub-fields have sane defaults
+    pi = data.get("patient_info", {})
+    pi.setdefault("name", "")
+    pi.setdefault("age", 0)
+    pi.setdefault("gender", "")
+    pi.setdefault("date", "")
+    if isinstance(pi.get("age"), str):
+        try:
+            pi["age"] = int(re.search(r"\d+", pi["age"]).group())
+        except (AttributeError, ValueError):
+            pi["age"] = 0
+
+    data.setdefault("non_pharmacological_recommendations", [])
+    data.setdefault("medical_tests", [])
+    data.setdefault("prescriber", {"name": "Dr. AI Medic, MD"})
+    data.setdefault("reasoning", "")
+
+    return data
+
+
+# ---------- Regex Fallback (legacy free-text parsing) ----------
+
+def _extract_prescription_regex(text: str) -> Dict:
+    """Extract structured prescription data from markdown-formatted text using regex."""
+
     def extract_field(pattern, source=None, default=""):
-        src = source if source else text  # Use provided source or fall back to full text
-        match = re.search(pattern, src, re.IGNORECASE | re.DOTALL)  # Search with regex pattern
-        return match.group(1).strip() if match else default  # Return match or default value
+        src = source if source else text
+        match = re.search(pattern, src, re.IGNORECASE | re.DOTALL)
+        return match.group(1).strip() if match else default
 
-    # Helper function to extract a list of medications from the medication section
     def extract_medications(section: str) -> List[Dict]:
         if not section or "Not applicable" in section or "No medication prescribed" in section:
-            return []  # Return empty list if no medications are present
+            return []
 
-        meds = []  # List to store medication dictionaries
-
-        # Split into individual medication blocks using common list indicators
-        med_blocks = re.split(r"(?:\n|^)\s*(?:\d+[\.\)]|\-|\*)\s*(?=\*\*Name\*\*:)", section.strip())
+        meds = []
+        # Split on numbered items or bullet items that precede a Name field
+        med_blocks = re.split(
+            r"(?:\n|^)\s*(?:\d+[\.\)]|\-|\*)\s*(?=\*\*Name\*\*:)",
+            section.strip(),
+        )
 
         for block in med_blocks:
             block = block.strip()
             if not block:
-                continue  # Skip empty blocks
-
+                continue
             if not block.startswith("**Name**:"):
-                block = "**Name**: " + block  # Ensure the block starts with Name field
+                block = "**Name**: " + block
 
-            raw_name = extract_field(r"\*\*Name\*\*:\s*(.+?)(\n|$)", block)  # Extract name
-            cleaned_name = re.sub(r"^\d+[\.\)]\s*", "", raw_name).strip()  # Remove bullet number if present
+            raw_name = extract_field(r"\*\*Name\*\*:\s*(.+?)(\n|$)", block)
+            cleaned_name = re.sub(r"^\d+[\.\)]\s*", "", raw_name).strip()
+            dosage = extract_field(r"\*\*Dosage and Route\*\*:\s*(.+?)(\n|$)", block)
+            freq = extract_field(r"\*\*Frequency and Duration\*\*:\s*(.+?)(\n|$)", block)
+            refills = extract_field(r"\*\*Refills\*\*:\s*(.+?)(\n|$)", block)
 
-            dosage = extract_field(r"\*\*Dosage and Route\*\*:\s*(.+?)(\n|$)", block)  # Extract dosage
-            freq = extract_field(r"\*\*Frequency and Duration\*\*:\s*(.+?)(\n|$)", block)  # Extract frequency
-            refills = extract_field(r"\*\*Refills\*\*:\s*(.+?)(\n|$)", block)  # Extract refill info
-
-            # Extract special instructions (supports slightly different field names)
-            instr_match = re.search(r"\*\*(?:Special Instructions|Special Instructions or Warnings)\*\*:\s*(.+?)(\n|$)", block)
+            instr_match = re.search(
+                r"\*\*(?:Special Instructions|Special Instructions or Warnings)\*\*:\s*(.+?)(\n|$)",
+                block,
+            )
             instructions = instr_match.group(1).strip() if instr_match else ""
 
-            # Add structured medication dictionary to list
-            meds.append({
-                "name": cleaned_name,
-                "brand_names": [],  # Placeholder if brand names are to be added later
-                "dosage_and_route": dosage,
-                "frequency_and_duration": freq,
-                "refills": refills,
-                "special_instructions": instructions
-            })
+            if cleaned_name:
+                meds.append({
+                    "name": cleaned_name,
+                    "dosage_and_route": dosage,
+                    "frequency_and_duration": freq,
+                    "refills": refills,
+                    "special_instructions": instructions,
+                })
+        return meds
 
-        return meds  # Return list of medications
-
-    # Helper function to extract non-pharmacological recommendations
-    def extract_non_pharm_recommendations(section: str) -> List[Dict]:
+    def _extract_list_items(section: str, name_key: str, detail_key: str = "details") -> List[Dict]:
         if not section:
-            return []  # Return empty list if section is missing
-        recommendations = []
-        lines = section.strip().split("\n")  # Split section into lines
-        for line in lines:
+            return []
+        items = []
+        for line in section.strip().split("\n"):
             line = line.strip()
             if not line:
                 continue
-            match = re.match(r"^(?:\d+[\.\)]|\-|\*)\s*(\*\*(.+?)\*\*:)?\s*(.+)", line)  # Extract title and details
+            match = re.match(r"^(?:\d+[\.\)]|\-|\*)\s*(\*\*(.+?)\*\*:)?\s*(.+)", line)
             if match:
-                title = match.group(2).strip() if match.group(2) else match.group(3).strip()
+                title = (match.group(2) or match.group(3)).strip()
                 detail = match.group(3).strip()
-                recommendations.append({
-                    "title": title,
-                    "details": {"text": detail}
-                })
-        return recommendations  # Return list of recommendations
+                items.append({name_key: title, detail_key: {"text": detail}})
+        return items
 
-    # Helper function to extract medical test recommendations
-    def extract_medical_tests(section: str) -> List[Dict]:
-        if not section:
-            return []  # Return empty list if section is missing
-        tests = []
-        lines = section.strip().split("\n")  # Split section into lines
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-            match = re.match(r"^(?:\d+[\.\)]|\-|\*)\s*(\*\*(.+?)\*\*:)?\s*(.+)", line)  # Extract test title and detail
-            if match:
-                title = match.group(2).strip() if match.group(2) else match.group(3).strip()
-                detail = match.group(3).strip()
-                tests.append({
-                    "test_name": title,
-                    "details": {"text": detail}
-                })
-        return tests  # Return list of tests
+    # Patient info
+    age_str = extract_field(r",\s*(\d+)\s*years? old", default="0")
+    try:
+        age = int(age_str)
+    except ValueError:
+        age = 0
 
-    # Extract basic patient information using regex
     patient_info = {
-        "name": extract_field(r"\*\*Patient Information\*\*:\s*([\w\s]+),"),  # Extract patient name
-        "age": int(extract_field(r",\s*(\d+)\s*years? old", default="0")),  # Extract patient age
-        "gender": extract_field(r"Gender:\s*([A-Za-z]+)"),  # Extract gender
-        "date": extract_field(r"\*\*Date\*\*:\s*(.+?)(?=\n\*\*|$)", default="")  # Extract date
+        "name": extract_field(r"\*\*Patient Information\*\*:\s*([\w\s]+),"),
+        "age": age,
+        "gender": extract_field(r"Gender:\s*([A-Za-z]+)"),
+        "date": extract_field(r"\*\*Date\*\*:\s*(.+?)(?=\n\*\*|$)", default=""),
     }
 
-    diagnosis = extract_field(r"\*\*Diagnosis\*\*:\s*(.*?)(?=\n\*\*|$)")  # Extract diagnosis section
+    diagnosis = extract_field(r"\*\*Diagnosis\*\*:\s*(.*?)(?=\n\*\*|$)")
 
-    # Extract medication section between Medication and next header
     med_match = re.search(
         r"\*\*Medication\*\*:?(.*?)(\*\*Non-Pharmacological Recommendations\*\*|\*\*Medical Tests Recommended\*\*|\*\*Follow-Up\*\*|\*\*Prescriber\*\*|$)",
         text,
-        re.DOTALL
+        re.DOTALL,
     )
-    medications = extract_medications(med_match.group(1)) if med_match else []  # Extract medication details
+    medications = extract_medications(med_match.group(1)) if med_match else []
 
-    # Extract non-pharmacological section
     non_pharm_match = re.search(
         r"\*\*Non-Pharmacological Recommendations\*\*:?(.*?)(\*\*Medical Tests Recommended\*\*|\*\*Follow-Up\*\*|\*\*Prescriber\*\*|$)",
         text,
-        re.DOTALL
+        re.DOTALL,
     )
-    non_pharm_recs = extract_non_pharm_recommendations(non_pharm_match.group(1)) if non_pharm_match else []
+    non_pharm_recs = (
+        _extract_list_items(non_pharm_match.group(1), "title") if non_pharm_match else []
+    )
 
-    # Extract medical tests section
     test_match = re.search(
         r"\*\*Medical Tests Recommended\*\*:?(.*?)(\*\*Follow-Up\*\*|\*\*Prescriber\*\*|$)",
         text,
-        re.DOTALL
+        re.DOTALL,
     )
-    medical_tests = extract_medical_tests(test_match.group(1)) if test_match else []
+    medical_tests = (
+        _extract_list_items(test_match.group(1), "test_name") if test_match else []
+    )
 
-    # Extract prescriber name
     prescriber = extract_field(r"\*\*Prescriber\*\*:\s*(.+?)(?=\n|$)").rstrip("-").strip()
 
-    # Return structured data as a dictionary
     return {
         "patient_info": patient_info,
         "diagnosis": diagnosis,
         "medication": medications,
         "non_pharmacological_recommendations": non_pharm_recs,
         "medical_tests": medical_tests,
-        "prescriber": {
-            "name": prescriber
-        }
+        "prescriber": {"name": prescriber},
     }
+
+
+# ---------- Public API ----------
+
+def extract_prescription_data(text: str) -> Dict:
+    """
+    Extract structured prescription data from LLM output.
+
+    Tries to parse as structured JSON first (from ``response_format``).
+    Falls back to regex-based extraction from markdown text.
+    """
+    # Try structured JSON first
+    result = parse_structured_json(text)
+    if result is not None:
+        logger.info("Parsed prescription via structured JSON output.")
+        return result
+
+    # Fallback to regex
+    logger.info("Falling back to regex-based prescription extraction.")
+    return _extract_prescription_regex(text)

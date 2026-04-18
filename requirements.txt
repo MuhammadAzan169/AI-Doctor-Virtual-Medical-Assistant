@@ -9,6 +9,7 @@ openai
 
 # Speech-to-text (Whisper)
 openai-whisper
+torch
 
 # Text-to-speech
 gtts
@@ -24,4 +25,3 @@ paddlepaddle
 
 # PDF generation
 reportlab
-PyPDF2
