@@ -1,0 +1,11 @@
+{
+  "name": "ai-doctor-frontend",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Static frontend (landing + chatbot) for the AI Doctor assistant.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs && npx --yes serve -l 3000 ."
+  }
+}

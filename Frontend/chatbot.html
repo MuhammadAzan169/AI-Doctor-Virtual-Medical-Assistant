@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="AI Medical Consultation — Chat with our AI Doctor for intelligent health insights." />
+    <title>Consultation — Luminous AI</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     ANIMATED BACKGROUND (dimmed variant)
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="bg-animation bg-animation--chat" aria-hidden="true">
+    <div class="bg-orb bg-orb--1"></div>
+    <div class="bg-orb bg-orb--2"></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     CHAT PAGE LAYOUT
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="chat-page">
+
+    <!-- ──────── Header ──────── -->
+    <header class="chat-header glass-strong">
+        <div class="chat-header__inner">
+            <!-- Back -->
+            <a href="index.html" class="chat-header__back" aria-label="Back to home">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </a>
+
+            <!-- Info -->
+            <div class="chat-header__info">
+                <span class="chat-header__logo-icon">
+                    <img src="assets\logo.png" alt="Luminous AI Logo">
+                </span>
+                <div>
+                    <div class="chat-header__title">AI Medical Assistant</div>
+                    <div class="chat-header__status">
+                        <span class="chat-header__status-dot"></span>
+                        Online — Ready to help
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theme toggle -->
+            <button class="navbar__theme-btn" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+            </button>
+
+            <!-- New Chat -->
+            <button class="chat-header__new-btn" id="new-chat-btn" aria-label="Start new consultation">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+            </button>
+        </div>
+    </header>
+
+
+    <!-- ──────── Chat Messages Area ──────── -->
+    <main class="chat-main" id="chat-main">
+        <div class="chat-messages" id="chat-messages">
+            <!-- Messages rendered by JS -->
+        </div>
+    </main>
+
+
+    <!-- ──────── Input Bar ──────── -->
+    <div class="chat-input-bar glass-strong" id="chat-input-bar">
+        <div class="chat-input-bar__inner">
+            <div class="chat-input-bar__field" id="input-field">
+                <button class="chat-input-bar__mic" id="mic-btn" aria-label="Voice input" style="display:none">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                </button>
+                <textarea
+                    id="chat-textarea"
+                    class="chat-input-bar__textarea"
+                    placeholder="Describe your symptoms..."
+                    rows="1"
+                    aria-label="Type your message"
+                ></textarea>
+                <button class="chat-input-bar__send" id="send-btn" aria-label="Send message" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                </button>
+            </div>
+            <p class="chat-input-bar__disclaimer">AI responses are for informational purposes only and do not replace professional medical advice.</p>
+        </div>
+    </div>
+
+</div><!-- .chat-page -->
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PATIENT FORM OVERLAY (shown on load)
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="form-overlay" id="form-overlay" role="dialog" aria-modal="true" aria-label="Patient Information">
+    <div class="form-card glass">
+        <div class="form-card__header">
+            <!-- Back -->
+            <a href="index.html" class="form-header__back" aria-label="Back to home">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </a>
+            <div class="form-card__header-content">
+                <div class="form-card__icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <h2 class="form-card__title">Patient Information</h2>
+                <p class="form-card__subtitle">Please provide your details to begin the consultation.</p>
+            </div>
+        </div>
+
+        <form id="patient-form" novalidate>
+            <!-- Name -->
+            <div class="form-group">
+                <label for="patient-name">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Full Name
+                </label>
+                <input type="text" id="patient-name" placeholder="Enter your full name" required />
+            </div>
+
+            <!-- Age & Gender -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="patient-age">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                        Age
+                    </label>
+                    <div class="age-input-wrapper">
+                        <input type="number" id="patient-age" placeholder="e.g. 30" min="1" max="120" required />
+                        <div class="age-arrows">
+                            <button class="age-arrow age-arrow--up" type="button" aria-label="Increase age">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                            </button>
+                            <button class="age-arrow age-arrow--down" type="button" aria-label="Decrease age">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="patient-gender">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        Gender
+                    </label>
+                    <select id="patient-gender" required>
+                        <option value="" disabled selected>Select gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="form-divider">Optional Uploads</div>
+
+            <!-- X-ray upload -->
+            <div class="form-group">
+                <label>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                    X-Ray Image
+                    <span class="optional-badge">Optional</span>
+                </label>
+                <div class="file-upload" id="xray-upload" tabindex="0" role="button" aria-label="Upload X-ray image">
+                    <input type="file" id="xray-file" accept="image/*" class="sr-only" />
+                    <div class="file-upload__placeholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                        <p>Click or drag to upload X-ray</p>
+                        <span>PNG, JPG (max 10MB)</span>
+                    </div>
+                    <div class="file-upload__preview">
+                        <span class="file-upload__filename"></span>
+                        <button type="button" class="file-upload__remove" aria-label="Remove file">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lab report upload -->
+            <div class="form-group">
+                <label>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+                    Lab Report
+                    <span class="optional-badge">Optional</span>
+                </label>
+                <div class="file-upload" id="lab-upload" tabindex="0" role="button" aria-label="Upload lab report">
+                    <input type="file" id="lab-file" accept="image/*,.pdf" class="sr-only" />
+                    <div class="file-upload__placeholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                        <p>Click or drag to upload lab report</p>
+                        <span>PNG, JPG, PDF (max 10MB)</span>
+                    </div>
+                    <div class="file-upload__preview">
+                        <span class="file-upload__filename"></span>
+                        <button type="button" class="file-upload__remove" aria-label="Remove file">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error message -->
+            <div class="form-error hidden" id="form-error" role="alert"></div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn-primary form-submit" id="form-submit-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                Start Consultation
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
+        </form>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PRESCRIPTION MODAL (hidden by default)
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="rx-modal" role="dialog" aria-modal="true" aria-label="Prescription">
+    <div class="modal">
+        <div class="modal__header">
+            <h2>📋 Medical Prescription</h2>
+            <button class="modal__close" id="rx-close" aria-label="Close prescription">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+        </div>
+        <div class="modal__body" id="rx-body">
+            <!-- Prescription content rendered by JS -->
+        </div>
+        <div class="modal__footer">
+            <button class="btn-ghost" id="rx-close-footer">Close</button>
+            <button class="btn-primary" id="rx-download">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                Download PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="js/config.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>

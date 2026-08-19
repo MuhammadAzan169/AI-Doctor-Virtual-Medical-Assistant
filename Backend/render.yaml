@@ -1,0 +1,69 @@
+# ── Render Blueprint — AI Doctor backend (free plan) ─────────────────────
+#
+# This repo is a monorepo, so the backend service uses Backend/ as its root.
+#
+#   Recommended: create the service manually and set Root Directory = Backend
+#   (see README → "Deploying the backend to Render"). Every setting below has
+#   a matching field in the dashboard.
+#
+#   Blueprint alternative: Render only auto-detects render.yaml at the REPO
+#   ROOT. To use Blueprint deploys, copy this file to the repo root and add
+#   `rootDir: Backend` under the service.
+#
+# Set every `sync: false` value in the dashboard — never commit secrets.
+#
+# The free plan gives 512 MB RAM and no persistent disk, so the heavy local
+# models (TensorFlow / PaddleOCR / Whisper) stay OFF here and the API-based
+# path is used instead. Those features remain fully available locally via
+# `python app.py`. See README → "Local vs production behaviour".
+services:
+  - type: web
+    name: ai-doctor-api
+    runtime: python
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    buildCommand: pip install --no-cache-dir -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12"
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+
+      # Heavy local models are unsuitable for the free plan — keep them off.
+      - key: ENABLE_FRACTURE
+        value: "false"
+      - key: ENABLE_OCR
+        value: "false"
+      - key: ENABLE_VOICE
+        value: "false"
+
+      # Comma-separated Vercel origin(s), no trailing slash.
+      - key: ALLOWED_ORIGINS
+        sync: false
+      # Secret — set in the Render dashboard.
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_PROVIDER
+        value: openrouter
+      - key: LLM_BASE_URL
+        value: https://openrouter.ai/api/v1
+      - key: LLM_MODEL
+        value: openai/gpt-oss-20b:free
+      - key: LLM_MAX_TOKENS
+        value: "3000"
+      - key: LLM_TEMPERATURE
+        value: "0.3"
+
+      - key: MAX_QUESTIONS
+        value: "8"
+      - key: MAX_UPLOAD_SIZE_MB
+        value: "10"
+      - key: SESSION_TTL_SECONDS
+        value: "3600"
+      # Free plan has no persistent disk — use the ephemeral filesystem.
+      - key: RUNTIME_DIR
+        value: /tmp/ai-doctor

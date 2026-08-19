@@ -1,0 +1,15 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Dependencies / build output
+node_modules/
+.vercel/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Generated at build time by build.mjs / app.py
+js/config.js

@@ -1,0 +1,41 @@
+# ── AI Doctor — LOCAL development dependencies ───────────────────────────
+# The FULL local stack: the lean API set below, PLUS every local AI/ML model
+# that the Render free plan cannot host (fracture detection, OCR, voice).
+#
+# Install from the repo root:
+#     pip install -r Backend/requirements-local.txt
+# Then run the whole app with:
+#     python app.py
+#
+# The Render deployment does NOT use this file — it installs the lean
+# Backend/requirements.txt instead. See README → "Render free-plan limitations".
+
+# ── Core API (identical to the deployed set) ─────────────────────────────
+fastapi>=0.110,<1.0
+uvicorn[standard]>=0.27,<1.0
+python-multipart>=0.0.9
+pydantic>=2.6,<3.0
+pydantic-settings>=2.2,<3.0
+
+# LLM client (OpenAI-compatible; used for OpenRouter)
+openai>=1.30,<2.0
+
+# Prescription PDF generation
+reportlab>=4.1,<5.0
+
+# Text-to-speech (lightweight, needs internet)
+gTTS>=2.5,<3.0
+
+# ── Local-only models (never installed on Render) ────────────────────────
+# X-ray fracture detection — ResNet50 weights in Backend/fracture_models/
+numpy>=1.26,<2.2
+tensorflow>=2.15,<2.20 ; python_version < "3.13"
+pillow>=10.0
+
+# Lab-report OCR — weights are auto-downloaded on first use
+paddleocr>=2.7,<4.0
+paddlepaddle>=2.6,<4.0
+
+# Speech-to-text (Whisper). Also requires ffmpeg on PATH — see README.
+openai-whisper>=20231117
+torch>=2.1

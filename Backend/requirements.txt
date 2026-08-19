@@ -1,0 +1,19 @@
+# ── AI Doctor — Backend runtime dependencies (Render free plan) ──────────
+# Deliberately lean so the service fits in 512 MB RAM and builds quickly.
+# Heavy local models (TensorFlow / PaddleOCR / Whisper) are NOT installed here;
+# they run locally only — see the repo-root requirements.txt and README.
+
+fastapi>=0.110,<1.0
+uvicorn[standard]>=0.27,<1.0
+python-multipart>=0.0.9
+pydantic>=2.6,<3.0
+pydantic-settings>=2.2,<3.0
+
+# LLM client (OpenAI-compatible; used for OpenRouter)
+openai>=1.30,<2.0
+
+# Prescription PDF generation
+reportlab>=4.1,<5.0
+
+# Text-to-speech (lightweight, needs outbound internet)
+gTTS>=2.5,<3.0
