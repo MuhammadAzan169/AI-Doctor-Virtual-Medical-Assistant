@@ -200,6 +200,24 @@ class LLMClient:
                     resp = self._client.chat.completions.create(**kwargs)
                     elapsed = (time.perf_counter() - start) * 1000
                     content = sanitize_output(resp.choices[0].message.content or "")
+
+                    if not content.strip():
+                        # A 200 with empty content is a failure, not a success.
+                        # Reasoning models can spend the whole token budget on
+                        # hidden reasoning and return nothing — most often in
+                        # JSON mode. Treated as success it would silently skip
+                        # the rest of the model chain, so fail over instead.
+                        last_err = RuntimeError(
+                            "Empty completion from %s%s"
+                            % (self._current_model, " (json mode)" if json_mode else "")
+                        )
+                        logger.warning(
+                            "Empty completion from '%s' (%.0fms, key=%d/%d) — trying next model.",
+                            self._current_model, elapsed,
+                            self._key_idx + 1, len(self.api_keys),
+                        )
+                        break  # exit key loop → shift model
+
                     logger.info(
                         "LLM OK (%.0fms) chars=%d  key=%d/%d  model=%s",
                         elapsed, len(content),
