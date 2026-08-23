@@ -209,8 +209,20 @@ def main() -> int:
         start_frontend(args.frontend_port)
         frontend_url = "http://127.0.0.1:%d" % args.frontend_port
 
+    _FEATURE_DEPS = {
+        "ENABLE_FRACTURE": "tensorflow",
+        "ENABLE_OCR": "paddleocr",
+        "ENABLE_VOICE": "whisper",
+    }
+
     def state(flag: str) -> str:
-        return "on" if features.get(flag) else "off (dependency not installed)"
+        if features.get(flag):
+            return "on"
+        import importlib.util
+        module = _FEATURE_DEPS[flag]
+        if importlib.util.find_spec(module) is None:
+            return "off (%s not installed)" % module
+        return "off (%s=false in .env; %s is installed)" % (flag, module)
 
     print("\n" + "=" * 62)
     print("  AI Doctor - local development stack")

@@ -293,6 +293,105 @@ function formatContent(text) {
    9. MESSAGE RENDERER
    ═══════════════════════════════════════════════════════════════════════ */
 
+const FINDING_ICONS = {
+    xray: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/><path d="M3 12h18"/></svg>',
+    lab: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6l-5 9a2 2 0 0 0 2 3h12a2 2 0 0 0 2-3l-5-9V3"/><path d="M8 3h8"/></svg>'
+};
+
+// Builds the clinical result card shown for an uploaded X-ray or lab report.
+function createFindingCard(finding) {
+    const card = document.createElement('div');
+    card.className = 'finding-card';
+
+    const header = document.createElement('div');
+    header.className = 'finding-card__header';
+
+    const icon = document.createElement('div');
+    icon.className = 'finding-card__icon';
+    icon.innerHTML = FINDING_ICONS[finding.kind] || FINDING_ICONS.lab;
+
+    const title = document.createElement('div');
+    title.className = 'finding-card__title';
+    title.textContent = finding.title || 'Result';
+
+    header.appendChild(icon);
+    header.appendChild(title);
+    card.appendChild(header);
+
+    if (finding.summary) {
+        const summary = document.createElement('div');
+        summary.className = 'finding-card__summary';
+        summary.textContent = finding.summary;
+        card.appendChild(summary);
+    }
+
+    const items = Array.isArray(finding.items) ? finding.items : [];
+    if (items.length) {
+        const table = document.createElement('table');
+        table.className = 'finding-card__table';
+
+        const headings = finding.kind === 'lab'
+            ? ['Test', 'Result', '']
+            : ['', '', ''];
+        if (finding.kind === 'lab') {
+            const thead = document.createElement('thead');
+            const tr = document.createElement('tr');
+            headings.forEach(h => {
+                const th = document.createElement('th');
+                th.textContent = h;
+                tr.appendChild(th);
+            });
+            thead.appendChild(tr);
+            table.appendChild(thead);
+        }
+
+        const tbody = document.createElement('tbody');
+        items.forEach(item => {
+            const tr = document.createElement('tr');
+
+            const label = document.createElement('td');
+            label.textContent = item.label;
+            tr.appendChild(label);
+
+            const value = document.createElement('td');
+            const strong = document.createElement('span');
+            strong.className = 'finding-card__value';
+            strong.textContent = item.value;
+            value.appendChild(strong);
+            if (item.reference) {
+                const ref = document.createElement('div');
+                ref.className = 'finding-card__ref';
+                ref.textContent = 'Ref ' + item.reference;
+                value.appendChild(ref);
+            }
+            tr.appendChild(value);
+
+            const flagCell = document.createElement('td');
+            if (item.flag === 'high' || item.flag === 'low') {
+                const badge = document.createElement('span');
+                badge.className = 'finding-flag finding-flag--' + item.flag;
+                badge.textContent = item.flag;
+                flagCell.appendChild(badge);
+            }
+            tr.appendChild(flagCell);
+
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        card.appendChild(table);
+    }
+
+    if (finding.note) {
+        const note = document.createElement('div');
+        note.className = 'finding-card__note';
+        note.textContent = finding.note;
+        card.appendChild(note);
+    }
+
+    return card;
+}
+
+
 const MessageRenderer = (() => {
     function render(container) {
         if (!container) return;
@@ -341,7 +440,13 @@ const MessageRenderer = (() => {
 
         const bubble = document.createElement('div');
         bubble.className = 'chat-msg__bubble';
-        bubble.innerHTML = formatContent(msg.content);
+        if (msg.finding) {
+            // Structured attachment result — render the clinical card, not prose.
+            bubble.classList.add('chat-msg__bubble--plain');
+            bubble.appendChild(createFindingCard(msg.finding));
+        } else {
+            bubble.innerHTML = formatContent(msg.content);
+        }
 
         const meta = document.createElement('div');
         meta.className = 'chat-msg__meta';
@@ -423,6 +528,7 @@ const PatientForm = (() => {
         if (!overlay || !form) return;
 
         form.addEventListener('submit', handleSubmit);
+        wireContextCounter();
 
         // Age arrow functionality
         const ageInput = document.getElementById('patient-age');
@@ -442,11 +548,23 @@ const PatientForm = (() => {
         input.value = value;
     }
 
-    function showFormError(msg) {
+    function showFormError(msg, tone) {
         const el = document.getElementById('form-error');
         if (!el) return;
         el.textContent = msg;
+        // A slow analysis is progress, not a failure — don't dress it in red.
+        el.classList.toggle('form-notice', tone === 'notice');
+        el.classList.toggle('form-error', tone !== 'notice');
         el.classList.remove('hidden');
+    }
+
+    function wireContextCounter() {
+        const field = document.getElementById('patient-context');
+        const count = document.getElementById('context-count');
+        if (!field || !count) return;
+        const update = () => { count.textContent = field.value.length + ' / 1000'; };
+        field.addEventListener('input', update);
+        update();
     }
 
     function clearFormError() {
@@ -477,6 +595,9 @@ const PatientForm = (() => {
         formData.append('name', name);
         formData.append('age', parseInt(age, 10));
         formData.append('gender', gender);
+        const contextEl = document.getElementById('patient-context');
+        const context = contextEl ? contextEl.value.trim() : '';
+        if (context) formData.append('context', context);
         if (xrayFile) formData.append('xray', xrayFile);
         if (reportFile) formData.append('report', reportFile);
 
@@ -491,9 +612,15 @@ const PatientForm = (() => {
         rerenderChat();
 
         // After 8 s warn the user the server is cold-starting (Render free tier)
+        const analysing = Boolean(xrayFile || reportFile);
         const wakeupTimer = setTimeout(() => {
-            if (submitBtn) submitBtn.textContent = 'Waking up server...';
-            showFormError('The server is starting up after inactivity — this takes up to 50 seconds on first use. Please keep waiting...');
+            if (submitBtn) submitBtn.textContent = analysing ? 'Analysing uploads...' : 'Connecting...';
+            showFormError(
+                analysing
+                    ? 'Reading your uploads. Running the imaging model for the first time can take up to a minute.'
+                    : 'Still connecting. If the server has been idle it may take up to 50 seconds to wake up.',
+                'notice'
+            );
         }, 8000);
 
         try {
@@ -505,7 +632,14 @@ const PatientForm = (() => {
             clearTimeout(wakeupTimer);
 
             if (!res.ok) {
-                throw new Error(`Server returned ${res.status}`);
+                let detail = '';
+                try {
+                    const err = await res.json();
+                    if (typeof err.detail === 'string') detail = err.detail;
+                } catch (_) { /* non-JSON error body */ }
+                const e = new Error(detail || `Server returned ${res.status}`);
+                e.serverDetail = detail;
+                throw e;
             }
 
             clearFormError();
@@ -529,13 +663,23 @@ const PatientForm = (() => {
 
             // Add the initial AI message from the backend
             addMessage('ai', data.message);
+
+            // Then what the uploaded X-ray / lab report actually showed, each as
+            // its own message so the findings are not lost inside the greeting.
+            if (Array.isArray(data.findings)) {
+                data.findings.forEach(finding => {
+                    // content is the spoken/copyable fallback for the card
+                    addMessage('ai', finding.title + ': ' + finding.summary, finding);
+                });
+            }
+
             rerenderChat();
             enableInput();
         } catch (error) {
             clearTimeout(wakeupTimer);
             console.error('Failed to start consultation:', error);
             ChatState.set({ isProcessing: false });
-            showFormError('Could not connect. If this is your first visit today, the server may still be waking up — wait a moment and try again.');
+            showFormError(error.serverDetail || 'Could not connect. If this is your first visit today, the server may still be waking up — wait a moment and try again.');
             if (submitBtn) {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg> Start Consultation <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
@@ -1023,9 +1167,9 @@ const ChatInput = (() => {
    SHARED HELPERS
    ═══════════════════════════════════════════════════════════════════════ */
 
-function addMessage(role, content) {
+function addMessage(role, content, finding) {
     const s = ChatState.get();
-    s.messages.push({ role, content, time: getTimeStamp() });
+    s.messages.push({ role, content, finding, time: getTimeStamp() });
 }
 
 function rerenderChat() {

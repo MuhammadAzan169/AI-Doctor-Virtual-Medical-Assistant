@@ -17,3 +17,8 @@ reportlab>=4.1,<5.0
 
 # Text-to-speech (lightweight, needs outbound internet)
 gTTS>=2.5,<3.0
+
+# Lab-report documents. Both read the file's own text layer, so PDF and DOCX
+# uploads work here without the heavy OCR stack; a scanned PDF still needs it.
+pypdfium2>=4.20,<7.0
+python-docx>=1.1,<2.0

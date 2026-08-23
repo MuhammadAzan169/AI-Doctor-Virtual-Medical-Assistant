@@ -1370,6 +1370,7 @@ html.light .form-overlay { background: hsla(0, 0%, 100%, 0.7); }
 html.light .form-group label { color: hsla(222, 47%, 11%, 0.8); }
 
 .form-group input,
+.form-group textarea,
 .form-group select {
     width: 100%;
     padding: 0.75rem 1rem;
@@ -1385,15 +1386,38 @@ html.light .form-group label { color: hsla(222, 47%, 11%, 0.8); }
 }
 
 html.light .form-group input,
+html.light .form-group textarea,
 html.light .form-group select { background: var(--secondary); }
 
-.form-group input::placeholder { color: hsla(215, 16%, 57%, 0.5); }
+.form-group input::placeholder,
+.form-group textarea::placeholder { color: hsla(215, 16%, 57%, 0.5); }
 
 .form-group input:focus,
+.form-group textarea:focus,
 .form-group select:focus {
     border-color: var(--primary);
     box-shadow: 0 0 0 3px hsla(193, 91%, 49%, 0.15);
 }
+
+
+/* Free-text background/context field on the intake form */
+.form-group textarea {
+    min-height: 5rem;
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+.field-hint {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 0.4rem;
+    font-size: 0.72rem;
+    color: hsla(215, 16%, 57%, 0.75);
+}
+
+html.light .field-hint { color: hsla(222, 47%, 11%, 0.55); }
 
 .form-group select {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
@@ -2157,4 +2181,159 @@ html.light .rx-prescriber { color: var(--foreground); }
 /* ── Print ───────────────────────────────────────────────────────── */
 @media print {
     .bg-animation, .navbar, .chat-input-bar, .modal-overlay { display: none !important; }
+}
+
+/* ── Attachment findings card (X-ray / lab report results) ─────────────── */
+
+.finding-card {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 0.9rem;
+    background: hsla(215, 28%, 12%, 0.55);
+    overflow: hidden;
+}
+
+html.light .finding-card { background: var(--secondary); }
+
+.finding-card__header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 0.95rem;
+    border-bottom: 1px solid var(--border);
+    background: hsla(215, 28%, 16%, 0.5);
+}
+
+html.light .finding-card__header { background: hsla(215, 28%, 92%, 0.6); }
+
+.finding-card__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.65rem;
+    height: 1.65rem;
+    flex-shrink: 0;
+    border-radius: 0.45rem;
+    color: var(--primary);
+    background: hsla(193, 91%, 49%, 0.12);
+}
+
+.finding-card__icon svg { width: 0.95rem; height: 0.95rem; }
+
+.finding-card__title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--foreground);
+}
+
+.finding-card__summary {
+    padding: 0.75rem 0.95rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    /* The AI bubble dims its text; clinical values must stay legible. */
+    color: var(--foreground);
+    opacity: 1;
+}
+
+.finding-card__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    /* Without this the table refuses to shrink below its min-content width,
+       and a long test name stretches the whole card. */
+    table-layout: fixed;
+}
+
+.finding-card__table td:first-child {
+    overflow-wrap: anywhere;
+}
+
+.finding-card__table th:nth-child(3),
+.finding-card__table td:nth-child(3) { width: 4.2rem; }
+
+.finding-card__table th {
+    padding: 0.35rem 0.95rem;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    text-align: left;
+    color: hsla(215, 16%, 57%, 0.9);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.finding-card__table th:last-child,
+.finding-card__table td:last-child { text-align: right; }
+
+.finding-card__table td {
+    padding: 0.45rem 0.95rem;
+    border-bottom: 1px solid hsla(215, 28%, 30%, 0.25);
+    color: var(--foreground);
+    vertical-align: baseline;
+}
+
+.finding-card__table tr:last-child td { border-bottom: none; }
+
+.finding-card__value { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+.finding-card__ref {
+    font-size: 0.72rem;
+    color: hsla(215, 16%, 57%, 0.85);
+    font-variant-numeric: tabular-nums;
+}
+
+.finding-flag {
+    display: inline-block;
+    padding: 0.08rem 0.42rem;
+    border-radius: 0.3rem;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.finding-flag--high {
+    color: hsl(0, 72%, 72%);
+    background: hsla(0, 72%, 51%, 0.16);
+}
+
+.finding-flag--low {
+    color: hsl(38, 92%, 68%);
+    background: hsla(38, 92%, 50%, 0.16);
+}
+
+html.light .finding-flag--high { color: hsl(0, 72%, 40%); background: hsla(0, 72%, 51%, 0.12); }
+html.light .finding-flag--low { color: hsl(32, 90%, 35%); background: hsla(38, 92%, 50%, 0.16); }
+
+.finding-card__note {
+    padding: 0.5rem 0.95rem 0.7rem;
+    font-size: 0.7rem;
+    line-height: 1.45;
+    color: hsla(215, 16%, 57%, 0.8);
+}
+
+html.light .finding-card__note { color: hsla(222, 47%, 11%, 0.55); }
+
+/* A bubble that only wraps a card: drop the chrome so the card is the frame. */
+.chat-msg__bubble--plain {
+    /* The bubble normally shrinks to its text; pin it so an X-ray card and a
+       lab card come out the same width instead of ragged. */
+    width: min(32rem, 100%);
+    padding: 0;
+    background: none !important;
+    border: none !important;
+}
+
+/* Neutral progress notice on the intake form (distinct from .form-error). */
+.form-notice {
+    padding: 0.7rem 0.9rem;
+    border-radius: 0.7rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--foreground);
+    background: hsla(193, 91%, 49%, 0.08);
+    border: 1px solid hsla(193, 91%, 49%, 0.25);
 }

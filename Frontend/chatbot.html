@@ -160,6 +160,21 @@
                 </div>
             </div>
 
+            <!-- Additional context -->
+            <div class="form-group">
+                <label for="patient-context">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Background &amp; Context
+                    <span class="optional-badge">Optional</span>
+                </label>
+                <textarea id="patient-context" rows="3" maxlength="1000"
+                    placeholder="Anything the doctor should know up front — how an injury happened, existing conditions, regular medication, allergies, or what your uploads relate to."></textarea>
+                <div class="field-hint">
+                    <span>Helps the assistant ask better questions.</span>
+                    <span id="context-count">0 / 1000</span>
+                </div>
+            </div>
+
             <!-- Divider -->
             <div class="form-divider">Optional Uploads</div>
 
@@ -171,11 +186,11 @@
                     <span class="optional-badge">Optional</span>
                 </label>
                 <div class="file-upload" id="xray-upload" tabindex="0" role="button" aria-label="Upload X-ray image">
-                    <input type="file" id="xray-file" accept="image/*" class="sr-only" />
+                    <input type="file" id="xray-file" accept=".png,.jpg,.jpeg,.bmp,.tiff" class="sr-only" />
                     <div class="file-upload__placeholder">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
                         <p>Click or drag to upload X-ray</p>
-                        <span>PNG, JPG (max 10MB)</span>
+                        <span>PNG, JPG, BMP, TIFF (max 10MB)</span>
                     </div>
                     <div class="file-upload__preview">
                         <span class="file-upload__filename"></span>
@@ -194,11 +209,11 @@
                     <span class="optional-badge">Optional</span>
                 </label>
                 <div class="file-upload" id="lab-upload" tabindex="0" role="button" aria-label="Upload lab report">
-                    <input type="file" id="lab-file" accept="image/*,.pdf" class="sr-only" />
+                    <input type="file" id="lab-file" accept=".png,.jpg,.jpeg,.bmp,.tiff,.json,.pdf,.docx" class="sr-only" />
                     <div class="file-upload__placeholder">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
                         <p>Click or drag to upload lab report</p>
-                        <span>PNG, JPG, PDF (max 10MB)</span>
+                        <span>PNG, JPG, PDF, DOCX (max 10MB)</span>
                     </div>
                     <div class="file-upload__preview">
                         <span class="file-upload__filename"></span>

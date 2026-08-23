@@ -31,7 +31,9 @@ def _get_ocr():
     if _ocr_instance is None:
         os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
 
-        # Monkey-patch: paddlex imports langchain.docstore, removed in langchain>=1.0.
+        # Monkey-patch: paddlex imports langchain.docstore and langchain.text_splitter,
+        # both removed in langchain>=1.0 and re-homed in langchain_core /
+        # langchain_text_splitters. Alias them back so the paddlex import chain works.
         import sys
         import types
 
@@ -46,6 +48,17 @@ def _get_ocr():
         sys.modules.setdefault("langchain.docstore", _langchain_docstore)
         sys.modules.setdefault("langchain.docstore.document", _langchain_docstore_document)
 
+        _langchain_text_splitter = types.ModuleType("langchain.text_splitter")
+        try:
+            import langchain_text_splitters as _lts
+
+            for _name in dir(_lts):
+                if not _name.startswith("_"):
+                    setattr(_langchain_text_splitter, _name, getattr(_lts, _name))
+        except ImportError:
+            logger.warning("langchain_text_splitters missing — paddlex import may fail.")
+        sys.modules.setdefault("langchain.text_splitter", _langchain_text_splitter)
+
         from paddleocr import PaddleOCR
 
         logger.info("Initializing PaddleOCR...")
@@ -53,22 +66,67 @@ def _get_ocr():
             use_doc_orientation_classify=False,
             use_doc_unwarping=False,
             use_textline_orientation=False,
+            # Mobile models: ~50x faster than the server pair on CPU, which is the
+            # difference between a usable request and a multi-minute stall.
+            text_detection_model_name="PP-OCRv5_mobile_det",
+            text_recognition_model_name="PP-OCRv5_mobile_rec",
+            # Paddle's oneDNN kernel raises NotImplementedError on Windows
+            # (ConvertPirAttribute2RuntimeAttribute), so keep it off.
+            enable_mkldnn=False,
         )
         logger.info("PaddleOCR ready.")
     return _ocr_instance
 
 
+# Longest edge fed to the detector. Bigger inputs cost time without helping
+# accuracy on document scans, which are already well above the text-height floor.
+_MAX_EDGE_PX = 1600
+
+
+def _downscale_if_huge(image_path: str, output_dir: str) -> str:
+    """Return a path to an image whose longest edge is <= _MAX_EDGE_PX."""
+    try:
+        from PIL import Image
+    except ImportError:
+        return image_path
+    try:
+        with Image.open(image_path) as im:
+            if max(im.size) <= _MAX_EDGE_PX:
+                return image_path
+            scale = _MAX_EDGE_PX / max(im.size)
+            resized = im.convert("RGB").resize(
+                (max(1, int(im.width * scale)), max(1, int(im.height * scale))),
+                Image.LANCZOS,
+            )
+            stem = os.path.splitext(os.path.basename(image_path))[0]
+            small = os.path.join(output_dir, f"{stem}_ocr_input.png")
+            resized.save(small)
+            logger.info("Downscaled %s -> %s for OCR", im.size, resized.size)
+            return small
+    except Exception:
+        logger.exception("Downscale failed for %s — using original", image_path)
+        return image_path
+
+
 def perform_ocr(image_path: str, output_dir: str = "output") -> str | None:
     """Run OCR and write a JSON result; return the JSON path or None on failure."""
     os.makedirs(output_dir, exist_ok=True)
-    ocr = _get_ocr()
     try:
-        result = ocr.predict(input=image_path)
+        ocr = _get_ocr()
+    except Exception:
+        # Installed is not the same as importable — a broken native/dependency
+        # combination only shows up here, and must not fail the consultation.
+        logger.exception("PaddleOCR could not be initialised — skipping OCR")
+        return None
+    ocr_input = _downscale_if_huge(image_path, output_dir)
+    try:
+        result = ocr.predict(input=ocr_input)
     except Exception:
         logger.exception("OCR prediction failed for %s", image_path)
         return None
 
-    input_stem = os.path.splitext(os.path.basename(image_path))[0]
+    # PaddleOCR names the JSON after the file it actually consumed.
+    input_stem = os.path.splitext(os.path.basename(ocr_input))[0]
     for res in result:
         res.save_to_json(output_dir)
         candidate = os.path.join(output_dir, f"{input_stem}.json")
