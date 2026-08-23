@@ -186,9 +186,31 @@ class Settings(BaseSettings):
         return self.ENVIRONMENT.lower() == "production"
 
 
+# Heavy local models that cannot run on a small production instance. Hosted
+# free tiers give ~512 MB RAM, while TensorFlow, PaddleOCR and Whisper each
+# need far more than that before their weights are even loaded.
+_PRODUCTION_DISABLED_FEATURES = ("ENABLE_FRACTURE", "ENABLE_OCR", "ENABLE_VOICE")
+
+
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()
+    s = Settings()
+    if s.is_production:
+        # Forced off rather than merely defaulted off: these would otherwise be
+        # switched on by a stray dashboard variable and fail on every request,
+        # having already spent seconds attempting the import. Local runs are
+        # untouched, so `python app.py` keeps the full stack.
+        forced = [f for f in _PRODUCTION_DISABLED_FEATURES if getattr(s, f)]
+        for flag in forced:
+            object.__setattr__(s, flag, False)
+        if forced:
+            import logging
+            logging.getLogger("AIDoctor.Config").warning(
+                "Ignoring %s in production — these models need more memory than a "
+                "hosted small instance provides. PDF and DOCX reports still work.",
+                ", ".join(forced),
+            )
+    return s
 
 
 settings = get_settings()

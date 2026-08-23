@@ -33,7 +33,9 @@ services:
       - key: LOG_LEVEL
         value: INFO
 
-      # Heavy local models are unsuitable for the free plan — keep them off.
+      # Heavy local models are unsuitable for the free plan. ENVIRONMENT=production
+      # also forces these off in app/core/config.py, so a stray dashboard value
+      # cannot switch them back on — these entries just make the intent explicit.
       - key: ENABLE_FRACTURE
         value: "false"
       - key: ENABLE_OCR

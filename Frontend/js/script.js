@@ -217,10 +217,31 @@ const HealthCheck = (() => {
     }
 
     function applyFeatureFlags() {
-        // Upload fields are always visible — the server accepts them regardless of
-        // whether fracture detection / OCR are active on this deployment.
+        // Only offer what this deployment can actually act on. The hosted free
+        // tier cannot run the TensorFlow/PaddleOCR/Whisper models, so those
+        // inputs would accept a file and then do nothing with it.
         const micBtn = document.getElementById('mic-btn');
         if (micBtn) micBtn.style.display = appFeatures.voice ? '' : 'none';
+
+        const xrayGroup = document.getElementById('xray-group');
+        if (xrayGroup) {
+            xrayGroup.style.display = appFeatures.fracture_detection ? '' : 'none';
+            if (!appFeatures.fracture_detection) {
+                // Drop any file already chosen so it is not silently uploaded.
+                const input = document.getElementById('xray-file');
+                if (input) input.value = '';
+                ChatState.set({ xrayFile: null });
+            }
+        }
+
+        // Lab reports still work without OCR: PDF and DOCX are read from their
+        // own text layer. Only scanned images need the OCR stack.
+        const labFormats = document.getElementById('lab-formats');
+        const labInput = document.getElementById('lab-file');
+        if (!appFeatures.ocr) {
+            if (labFormats) labFormats.textContent = 'PDF, DOCX (max 10MB)';
+            if (labInput) labInput.setAttribute('accept', '.pdf,.docx,.json');
+        }
     }
 
     return { run };
